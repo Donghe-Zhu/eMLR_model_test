@@ -512,21 +512,26 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttree4593ebc0229afc096f0aeef4d8abf9b502fae8c5targetblank4593ebca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/4593ebc0229afc096f0aeef4d8abf9b502fae8c5" target="_blank">4593ebc</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttreee3f32c391e1813b0c0041c34a2ffd10582a50c90targetblanke3f32c3a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/e3f32c391e1813b0c0041c34a2ffd10582a50c90" target="_blank">e3f32c3</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttree4593ebc0229afc096f0aeef4d8abf9b502fae8c5targetblank4593ebca" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttreee3f32c391e1813b0c0041c34a2ffd10582a50c90targetblanke3f32c3a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/4593ebc0229afc096f0aeef4d8abf9b502fae8c5" target="_blank">4593ebc</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/e3f32c391e1813b0c0041c34a2ffd10582a50c90" target="_blank">e3f32c3</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 </p>
 <pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+
 Untracked files:
     Untracked:  code/Workflowr_project_managment.R
 
@@ -567,6 +572,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/Donghe-Zhu/eMLR_model_test/blob/e3f32c391e1813b0c0041c34a2ffd10582a50c90/analysis/read_model_data.Rmd" target="_blank">e3f32c3</a>
+</td>
+<td>
+Donghe_Zhu
+</td>
+<td>
+2020-09-30
+</td>
+<td>
+Error in using tidync select variable
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/Donghe-Zhu/eMLR_model_test/d2e4f7db106841ee2d18eb633a0167dedf155947/docs/read_model_data.html" target="_blank">d2e4f7d</a>
+</td>
+<td>
+Donghe_Zhu
+</td>
+<td>
+2020-09-30
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -659,10 +698,157 @@ XXX
 </div>
 </div>
 </div>
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
-<p>add text</p>
-<pre class="r"><code>ghu()</code></pre>
+<div id="section" class="section level2">
+<h2></h2>
+<p>Load package</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>─ Attaching packages ───────────────────────────── tidyverse 1.3.0 ─</code></pre>
+<pre><code>✓ ggplot2 3.3.2     ✓ purrr   0.3.4
+✓ tibble  3.0.3     ✓ dplyr   1.0.2
+✓ tidyr   1.1.2     ✓ stringr 1.4.0
+✓ readr   1.3.1     ✓ forcats 0.5.0</code></pre>
+<pre><code>Warning: 程辑包&#39;ggplot2&#39;是用R版本3.6.2 来建造的</code></pre>
+<pre><code>Warning: 程辑包&#39;tibble&#39;是用R版本3.6.2 来建造的</code></pre>
+<pre><code>Warning: 程辑包&#39;tidyr&#39;是用R版本3.6.2 来建造的</code></pre>
+<pre><code>Warning: 程辑包&#39;purrr&#39;是用R版本3.6.2 来建造的</code></pre>
+<pre><code>Warning: 程辑包&#39;dplyr&#39;是用R版本3.6.2 来建造的</code></pre>
+<pre><code>─ Conflicts ─────────────────────────────── tidyverse_conflicts() ─
+x dplyr::filter() masks stats::filter()
+x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(tidync)</code></pre>
+<pre><code>Warning: 程辑包&#39;tidync&#39;是用R版本3.6.2 来建造的</code></pre>
+<pre class="r"><code>library(reticulate)</code></pre>
+<pre><code>Warning: 程辑包&#39;reticulate&#39;是用R版本3.6.2 来建造的</code></pre>
+<pre class="r"><code>library(oce)</code></pre>
+<pre><code>载入需要的程辑包：gsw</code></pre>
+<pre><code>载入需要的程辑包：testthat</code></pre>
+<pre><code>
+载入程辑包：&#39;testthat&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:dplyr&#39;:
+
+    matches</code></pre>
+<pre><code>The following object is masked from &#39;package:purrr&#39;:
+
+    is_null</code></pre>
+<pre><code>The following object is masked from &#39;package:tidyr&#39;:
+
+    matches</code></pre>
+<pre class="r"><code>library(gsw)
+library(geosphere)
+library(patchwork)</code></pre>
+<pre><code>Warning: 程辑包&#39;patchwork&#39;是用R版本3.6.2 来建造的</code></pre>
+<p>Read in data and variable DIC</p>
+<pre class="r"><code>library(ncdf4)
+library(ggplot2)
+library(dplyr)
+library(stars)
+library(tidync)
+library(PCICt)
+library(tidyselect)
+nc_data &lt;- tidync(here::here(&quot;data&quot;,
+                      &quot;GIAF_JRA.pop.h.0354.nc&quot;))
+a &lt;- nc_data$variable
+DIC &lt;- nc_data %&gt;%
+  hyper_tibble(select_var = &quot;DIC&quot;)
+  
+info &lt;- ncatt_get(nc_data, &quot;DIC&quot;)   # TLONG, TLAT, z_t, time: 320, 384, 60, 12
+
+# reshape as data frame and filter to depth at 500cm, month of August
+library(reshape2)
+var &lt;- melt(var)
+var &lt;- var %&gt;%
+  rename(lon = Var1,
+         lat = Var2,
+         depth = Var3,
+         month = Var4) %&gt;%
+  filter(depth == 1 &amp; month == 8)
+print(var)</code></pre>
+<p>Map of surface DIC value</p>
+<pre class="r"><code>ggplot() +
+  geom_raster(data=var,aes(x = lon, y = lat, fill = value)) +
+  scale_fill_distiller(palette = &#39;Spectral&#39;, direction = 1) +
+  scale_y_continuous(breaks=c(1,95,190,285,384),labels=c(&quot;-80&quot;,&quot;-40&quot;,&quot;0&quot;,&quot;40&quot;,&quot;80&quot;)) +
+  scale_x_continuous(breaks=c(1,80,160,240,320),labels=c(&quot;320&quot;,&quot;50&quot;,&quot;140&quot;,&quot;230&quot;,&quot;320&quot;))</code></pre>
+<p>section_global_coordinates</p>
+<pre class="r"><code>library(readr)
+library(geosphere)
+library(tidyr)
+
+parameters &lt;- data.frame(
+  lon_Atl_section = 335.5,
+  lat_section_N = 60.5,
+  lat_section_S = -60.5,
+  lon_Pac_section = 190.5
+)
+
+landsea_01 &lt;- read_csv(here::here(&quot;data&quot;,
+                                  &quot;landsea_01.msk&quot;),
+                         skip = 1,
+                         col_types = list(.default = &quot;d&quot;))
+
+basinmask_01 &lt;- read_csv(here::here(&quot;data&quot;,
+                                    &quot;basinmask_01.msk&quot;),
+                         skip = 1,
+                         col_types = list(.default = &quot;d&quot;))
+
+# diff
+basinmask_01 &lt;- basinmask_01 %&gt;% 
+  select(Latitude: Longitude) %&gt;%
+  rename(lat = Latitude, lon = Longitude)
+
+section &lt;- basinmask_01 %&gt;%
+  select(lon, lat)
+
+Atl_NS &lt;- section %&gt;%
+  filter(
+    lon == parameters$lon_Atl_section,
+    lat &lt;= parameters$lat_section_N,
+    lat &gt;= parameters$lat_section_S
+  ) %&gt;%
+  arrange(-lat)
+
+Atl_SO &lt;- section %&gt;%
+  filter(lon &gt; parameters$lon_Atl_section,
+         lat == parameters$lat_section_S) %&gt;%
+  arrange(lon)
+
+Pac_SO &lt;- section %&gt;%
+  filter(lon &lt; parameters$lon_Pac_section,
+         lat == parameters$lat_section_S) %&gt;%
+  arrange(lon)
+
+Pac_SN &lt;- section %&gt;%
+  filter(
+    lon == parameters$lon_Pac_section,
+    lat &lt;= parameters$lat_section_N,
+    lat &gt;= parameters$lat_section_S
+  ) %&gt;%
+  arrange(lat)
+
+section_global_coordinates &lt;- bind_rows(Atl_NS,
+                     Atl_SO,
+                     Pac_SO,
+                     Pac_SN)
+
+#section_global_coordinates &lt;- section_global_coordinates %&gt;%
+#  mutate(lon_180 = if_else(lon &gt; 180, lon - 360, lon))
+
+section_global_coordinates &lt;- section_global_coordinates %&gt;%
+  mutate(dist_int = distGeo(cbind(lon, lat)) / 1e6) %&gt;%   # diff
+  mutate(dist = cumsum(dist_int))
+
+section_global_coordinates &lt;- section_global_coordinates %&gt;%
+  select(lon, lat, dist) %&gt;% 
+  drop_na()
+
+rm(Atl_NS, Atl_SO, Pac_SN, Pac_SO, section)
+
+var &lt;- melt(ncvar_get(nc_data, &quot;DIC&quot;))
+var &lt;- var %&gt;%
+  rename(lon = Var1,
+         lat = Var2,
+         depth = Var3,
+         month = Var4)</code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -686,17 +872,29 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] workflowr_1.6.2
+ [1] patchwork_1.0.1  geosphere_1.5-10 oce_1.2-0        gsw_1.0-5       
+ [5] testthat_2.3.2   reticulate_1.16  tidync_0.2.4     forcats_0.5.0   
+ [9] stringr_1.4.0    dplyr_1.0.2      purrr_0.3.4      readr_1.3.1     
+[13] tidyr_1.1.2      tibble_3.0.3     ggplot2_3.3.2    tidyverse_1.3.0 
+[17] workflowr_1.6.2 
 
 loaded via a namespace (and not attached):
- [1] Rcpp_1.0.5       rstudioapi_0.10  whisker_0.4      knitr_1.30      
- [5] magrittr_1.5     R6_2.4.1         rlang_0.4.7      stringr_1.4.0   
- [9] tools_3.6.1      xfun_0.17        git2r_0.27.1     htmltools_0.5.0 
-[13] ellipsis_0.3.1   rprojroot_1.3-2  yaml_2.2.1       digest_0.6.25   
-[17] tibble_3.0.3     lifecycle_0.2.0  crayon_1.3.4     later_1.1.0.1   
-[21] vctrs_0.3.4      promises_1.1.1   fs_1.5.0         glue_1.4.2      
-[25] evaluate_0.14    rmarkdown_2.3    stringi_1.5.3    compiler_3.6.1  
-[29] pillar_1.4.6     backports_1.1.10 httpuv_1.5.4     pkgconfig_2.0.3 </code></pre>
+ [1] Rcpp_1.0.5       lattice_0.20-38  lubridate_1.7.9  assertthat_0.2.1
+ [5] rprojroot_1.3-2  digest_0.6.25    R6_2.4.1         cellranger_1.1.0
+ [9] backports_1.1.10 reprex_0.3.0     evaluate_0.14    httr_1.4.2      
+[13] pillar_1.4.6     rlang_0.4.7      readxl_1.3.1     ncmeta_0.3.0    
+[17] rstudioapi_0.10  whisker_0.4      blob_1.2.1       Matrix_1.2-17   
+[21] rmarkdown_2.3    munsell_0.5.0    broom_0.7.0      compiler_3.6.1  
+[25] httpuv_1.5.4     modelr_0.1.8     xfun_0.17        pkgconfig_2.0.3 
+[29] htmltools_0.5.0  tidyselect_1.1.0 fansi_0.4.1      crayon_1.3.4    
+[33] dbplyr_1.4.4     withr_2.3.0      later_1.1.0.1    grid_3.6.1      
+[37] jsonlite_1.7.1   gtable_0.3.0     lifecycle_0.2.0  DBI_1.1.0       
+[41] git2r_0.27.1     magrittr_1.5     scales_1.1.1     ncdf4_1.17      
+[45] cli_2.0.2        stringi_1.5.3    fs_1.5.0         promises_1.1.1  
+[49] sp_1.4-2         xml2_1.3.2       ellipsis_0.3.1   generics_0.0.2  
+[53] vctrs_0.3.4      tools_3.6.1      glue_1.4.2       RNetCDF_2.4-2   
+[57] hms_0.5.3        yaml_2.2.1       colorspace_1.4-1 rvest_0.3.6     
+[61] knitr_1.30       haven_2.3.1     </code></pre>
 </div>
 </div>
 
