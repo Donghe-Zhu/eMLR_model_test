@@ -7,13 +7,138 @@ editor_options:
   chunk_output_type: console
 ---
 
-## Introduction
+##
 
-add text
+Load package
+```{r}
+library(tidyverse)
+library(tidync)
+library(reticulate)
+library(oce)
+library(gsw)
+library(geosphere)
+library(patchwork)
+```
 
-```{r readdata, eval=FALSE}
+Read in data and variable DIC
+```{r, eval=FALSE}
+library(ncdf4)
+library(ggplot2)
+library(dplyr)
+library(stars)
+library(tidync)
+library(PCICt)
+library(tidyselect)
+nc_data <- tidync(here::here("data",
+                      "GIAF_JRA.pop.h.0354.nc"))
+a <- nc_data$variable
+DIC <- nc_data %>%
+  hyper_tibble(select_var = "DIC")
+  
+info <- ncatt_get(nc_data, "DIC")   # TLONG, TLAT, z_t, time: 320, 384, 60, 12
 
-ghu()
+# reshape as data frame and filter to depth at 500cm, month of August
+library(reshape2)
+var <- melt(var)
+var <- var %>%
+  rename(lon = Var1,
+         lat = Var2,
+         depth = Var3,
+         month = Var4) %>%
+  filter(depth == 1 & month == 8)
+print(var)
+```
 
+Map of surface DIC value 
+```{r,eval=FALSE}
+ggplot() +
+  geom_raster(data=var,aes(x = lon, y = lat, fill = value)) +
+  scale_fill_distiller(palette = 'Spectral', direction = 1) +
+  scale_y_continuous(breaks=c(1,95,190,285,384),labels=c("-80","-40","0","40","80")) +
+  scale_x_continuous(breaks=c(1,80,160,240,320),labels=c("320","50","140","230","320"))
+
+```
+
+section_global_coordinates
+```{r,eval=FALSE}
+library(readr)
+library(geosphere)
+library(tidyr)
+
+parameters <- data.frame(
+  lon_Atl_section = 335.5,
+  lat_section_N = 60.5,
+  lat_section_S = -60.5,
+  lon_Pac_section = 190.5
+)
+
+landsea_01 <- read_csv(here::here("data",
+                                  "landsea_01.msk"),
+                         skip = 1,
+                         col_types = list(.default = "d"))
+
+basinmask_01 <- read_csv(here::here("data",
+                                    "basinmask_01.msk"),
+                         skip = 1,
+                         col_types = list(.default = "d"))
+
+# diff
+basinmask_01 <- basinmask_01 %>% 
+  select(Latitude: Longitude) %>%
+  rename(lat = Latitude, lon = Longitude)
+
+section <- basinmask_01 %>%
+  select(lon, lat)
+
+Atl_NS <- section %>%
+  filter(
+    lon == parameters$lon_Atl_section,
+    lat <= parameters$lat_section_N,
+    lat >= parameters$lat_section_S
+  ) %>%
+  arrange(-lat)
+
+Atl_SO <- section %>%
+  filter(lon > parameters$lon_Atl_section,
+         lat == parameters$lat_section_S) %>%
+  arrange(lon)
+
+Pac_SO <- section %>%
+  filter(lon < parameters$lon_Pac_section,
+         lat == parameters$lat_section_S) %>%
+  arrange(lon)
+
+Pac_SN <- section %>%
+  filter(
+    lon == parameters$lon_Pac_section,
+    lat <= parameters$lat_section_N,
+    lat >= parameters$lat_section_S
+  ) %>%
+  arrange(lat)
+
+section_global_coordinates <- bind_rows(Atl_NS,
+                     Atl_SO,
+                     Pac_SO,
+                     Pac_SN)
+
+#section_global_coordinates <- section_global_coordinates %>%
+#  mutate(lon_180 = if_else(lon > 180, lon - 360, lon))
+
+section_global_coordinates <- section_global_coordinates %>%
+  mutate(dist_int = distGeo(cbind(lon, lat)) / 1e6) %>%   # diff
+  mutate(dist = cumsum(dist_int))
+
+section_global_coordinates <- section_global_coordinates %>%
+  select(lon, lat, dist) %>% 
+  drop_na()
+
+rm(Atl_NS, Atl_SO, Pac_SN, Pac_SO, section)
+
+var <- melt(ncvar_get(nc_data, "DIC"))
+var <- var %>%
+  rename(lon = Var1,
+         lat = Var2,
+         depth = Var3,
+         month = Var4)
 ```
 
