@@ -5,6 +5,8 @@ navbar:
   left:
   - text: Home
     href: index.html
+  - text: Read model data
+    href: read_model_data.html
   right:
   - icon: fa-github
     text: Source code
