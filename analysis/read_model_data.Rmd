@@ -2,12 +2,26 @@
 title: "read_model_data"
 author: "Donghe Zhu and Dr Jens Daniel Müller"
 date:  "`r format(Sys.time(), '%d %B, %Y')`"
-output: workflowr::wflow_html
+output: 
+  workflowr::wflow_html:
+    number_sections: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
 editor_options:
   chunk_output_type: console
 ---
 
-##
+
+```{r global_options, include = FALSE}
+# Some basic settings to improve the html output
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+
+# Basic settings
+
+## Required Packages
 
 ```{r Load_package}
 library(tidyverse) # the tidverse combines several packages
@@ -17,39 +31,65 @@ library(stars)
 library(tidync)
 library(tidyselect)
 library(geosphere)
+library(PCICt)
 ```
+
+## ggplot theme
+
+```{r ggplot_theme, include = FALSE}
+theme_set(theme_bw())
+```
+
+
+# Read data from netcdf file
 
 The error is in below "Read in file and extract variable DIC" chunk. I encounter problem when extracting variable DIC from the file (line 32). When I use hyper_tibble or hyper_filter to select variable DIC from 368 variables, I encounter with error "Error in hyper_array.tidync(x, ...) : no select_var variables available" or "Warning message: In hyper_filter.tidync(., select_var = "DIC"): 'select_var' not found in active grid, ignoring". 
 
 I want to get a tibble of DIC data, with labels of real latitude, longitude, depth, month and value (if not real latitude and longitude (grid sequence number), I also need to find how to link the real ones with the grid sequence number). But now I don't know how could I obtain the DIC tibble with tidync.
 
 Since I fail in the data extraction, I am sure that there are some errors following this one. But as long as I can read in the data, I can figure out the following code. 
-```{r Read in file and extract variable DIC, eval = FALSE}
-# read in file
-nc_data <- tidync(here::here("data",
-                      "GIAF_JRA.pop.h.0354.nc"))
+```{r Read_file_and_extract_DIC}
 
-# extract variable DIC
-DIC <- nc_data %>%
-  hyper_tibble(select_var = "DIC")
+# read one variable from file
+nc_data <- read_ncdf(here::here("data",
+                                "GIAF_JRA.pop.h.0354.nc"),
+                     var = "DIC")
 
-# rename DIC labels
-DIC <- DIC %>%
-  rename(lon = Var1,
-         lat = Var2,
-         depth = Var3,
-         month = Var4) %>%
-  filter(depth == 1 & month == 8)
-print(DIC)
+# convert to tibble
+nc_data_tibble <- nc_data %>%
+  as.tibble()
+
+# filter surface data
+nc_data_tibble_surface <- nc_data_tibble %>%
+  filter(z_t == 500)
+
+# filter winter data
+nc_data_tibble_surface_winter <- nc_data_tibble_surface %>%
+  filter(time == as.PCICt("0354-12-30", cal = "365_day"))
+
+nc_data_tibble_surface_winter <- nc_data_tibble_surface_winter %>%
+  mutate(DIC = as.numeric(DIC))
+
+nc_data_tibble_surface_winter <- nc_data_tibble_surface_winter %>%
+  filter(!is.na(DIC))
+
+
+
 ```
 
-```{r Map of surface DIC value, eval = FALSE}
-ggplot() +
-  geom_raster(data=var,aes(x = lon, y = lat, fill = value)) +
-  scale_fill_distiller(palette = 'Spectral', direction = 1) +
-  scale_y_continuous(breaks=c(1,95,190,285,384),labels=c("-80","-40","0","40","80")) +
-  scale_x_continuous(breaks=c(1,80,160,240,320),labels=c("320","50","140","230","320"))
+# Map surface DIC
+
+```{r Map_surface_DIC}
+
+nc_data_tibble_surface_winter %>%
+  filter(DIC > 1800) %>%
+  ggplot() +
+  geom_point(aes(nlon, nlat, col = DIC)) +
+  scale_color_viridis_c() +
+  coord_quickmap(expand = 0)
+
 ```
+
 
 ```{r U-shape distance-depth plot, eval = FALSE}
 # set parameters
