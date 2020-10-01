@@ -9,48 +9,37 @@ editor_options:
 
 ##
 
-Load package
-```{r}
-library(tidyverse)
-library(tidync)
-library(reticulate)
-library(oce)
-library(gsw)
-library(geosphere)
-library(patchwork)
-```
-
-Read in data and variable DIC
-```{r, eval=FALSE}
+```{r,Load package}
 library(ncdf4)
 library(ggplot2)
 library(dplyr)
 library(stars)
 library(tidync)
-library(PCICt)
 library(tidyselect)
+```
+
+Read in file and extract variable DIC
+```{r Read in file and extract variable DIC, eval=FALSE}
+# read in file
 nc_data <- tidync(here::here("data",
                       "GIAF_JRA.pop.h.0354.nc"))
-a <- nc_data$variable
+
+# extract variable DIC
 DIC <- nc_data %>%
   hyper_tibble(select_var = "DIC")
-  
-info <- ncatt_get(nc_data, "DIC")   # TLONG, TLAT, z_t, time: 320, 384, 60, 12
 
-# reshape as data frame and filter to depth at 500cm, month of August
-library(reshape2)
-var <- melt(var)
-var <- var %>%
+# rename DIC label
+DIC <- DIC %>%
   rename(lon = Var1,
          lat = Var2,
          depth = Var3,
          month = Var4) %>%
   filter(depth == 1 & month == 8)
-print(var)
+print(DIC)
 ```
 
 Map of surface DIC value 
-```{r,eval=FALSE}
+```{r, eval=FALSE}
 ggplot() +
   geom_raster(data=var,aes(x = lon, y = lat, fill = value)) +
   scale_fill_distiller(palette = 'Spectral', direction = 1) +
@@ -60,7 +49,7 @@ ggplot() +
 ```
 
 section_global_coordinates
-```{r,eval=FALSE}
+```{r, eval=FALSE}
 library(readr)
 library(geosphere)
 library(tidyr)
@@ -144,7 +133,7 @@ var <- var %>%
          month = Var4)
 ```
 
-```{r,eval=FALSE}
+```{r, eval=FALSE}
 library(dplyr)
 library(readr)
 library(ggplot2)
