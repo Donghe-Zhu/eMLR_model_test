@@ -512,16 +512,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttreefffbc05acd0139617e076ea7b39b8a43843a6423targetblankfffbc05a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/fffbc05acd0139617e076ea7b39b8a43843a6423" target="_blank">fffbc05</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttree88aa7c12499fd6535361f0678f1d697008c5b941targetblank88aa7c1a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/88aa7c12499fd6535361f0678f1d697008c5b941" target="_blank">88aa7c1</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttreefffbc05acd0139617e076ea7b39b8a43843a6423targetblankfffbc05a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttree88aa7c12499fd6535361f0678f1d697008c5b941targetblank88aa7c1a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/fffbc05acd0139617e076ea7b39b8a43843a6423" target="_blank">fffbc05</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/88aa7c12499fd6535361f0678f1d697008c5b941" target="_blank">88aa7c1</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -573,6 +573,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/Donghe-Zhu/eMLR_model_test/blob/88aa7c12499fd6535361f0678f1d697008c5b941/analysis/read_model_data.Rmd" target="_blank">88aa7c1</a>
+</td>
+<td>
+Donghe_Zhu
+</td>
+<td>
+2020-10-01
+</td>
+<td>
+Error in using tidync to extract DIC and matching lat/lon with grid point
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/Donghe-Zhu/eMLR_model_test/07e9b4ee231515a997b7fb034ce7e6409665c295/docs/read_model_data.html" target="_blank">07e9b4e</a>
+</td>
+<td>
+Donghe_Zhu
+</td>
+<td>
+2020-10-01
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -792,7 +826,11 @@ library(ggplot2)</code></pre>
 <pre><code>Warning: 程辑包&#39;tidync&#39;是用R版本3.6.2 来建造的</code></pre>
 <pre class="r"><code>library(tidyselect)</code></pre>
 <pre><code>Warning: 程辑包&#39;tidyselect&#39;是用R版本3.6.2 来建造的</code></pre>
-<p>Read in file and extract variable DIC</p>
+<pre class="r"><code>library(readr)
+library(geosphere)
+library(tidyr)</code></pre>
+<pre><code>Warning: 程辑包&#39;tidyr&#39;是用R版本3.6.2 来建造的</code></pre>
+<p>The error is in below “Read in file and extract variable DIC” chunk. I encounter problem when extracting variable DIC from the file (line 32). When I use hyper_tibble or hyper_filter to select variable DIC from 368 variables, I encounter with error “Error in hyper_array.tidync(x, …) : no select_var variables available” or “Warning message: In hyper_filter.tidync(., select_var =”DIC“): ‘select_var’ not found in active grid, ignoring”. I want to get a tibble of DIC data, with labels of real latitude, longitude, depth, month and value (if not real latitude and longitude (grid sequence number), I also need to find how to link the real ones with the grid sequence number). But now I don’t know how could I obtain the tibble with tidync. Since I fail in the data extraction, I an sure that there is some errors following this one. But as long as I can read in the data, I can figure out the following code.</p>
 <pre class="r"><code># read in file
 nc_data &lt;- tidync(here::here(&quot;data&quot;,
                       &quot;GIAF_JRA.pop.h.0354.nc&quot;))
@@ -801,7 +839,7 @@ nc_data &lt;- tidync(here::here(&quot;data&quot;,
 DIC &lt;- nc_data %&gt;%
   hyper_tibble(select_var = &quot;DIC&quot;)
 
-# rename DIC label
+# rename DIC labels
 DIC &lt;- DIC %&gt;%
   rename(lon = Var1,
          lat = Var2,
@@ -809,17 +847,12 @@ DIC &lt;- DIC %&gt;%
          month = Var4) %&gt;%
   filter(depth == 1 &amp; month == 8)
 print(DIC)</code></pre>
-<p>Map of surface DIC value</p>
 <pre class="r"><code>ggplot() +
   geom_raster(data=var,aes(x = lon, y = lat, fill = value)) +
   scale_fill_distiller(palette = &#39;Spectral&#39;, direction = 1) +
   scale_y_continuous(breaks=c(1,95,190,285,384),labels=c(&quot;-80&quot;,&quot;-40&quot;,&quot;0&quot;,&quot;40&quot;,&quot;80&quot;)) +
   scale_x_continuous(breaks=c(1,80,160,240,320),labels=c(&quot;320&quot;,&quot;50&quot;,&quot;140&quot;,&quot;230&quot;,&quot;320&quot;))</code></pre>
-<p>section_global_coordinates</p>
-<pre class="r"><code>library(readr)
-library(geosphere)
-library(tidyr)
-
+<pre class="r"><code># set parameters
 parameters &lt;- data.frame(
   lon_Atl_section = 335.5,
   lat_section_N = 60.5,
@@ -828,24 +861,26 @@ parameters &lt;- data.frame(
   lat_max = 65
 )
 
+# read in mask files
 landsea_01 &lt;- read_csv(here::here(&quot;data&quot;,
                                   &quot;landsea_01.msk&quot;),
                          skip = 1,
                          col_types = list(.default = &quot;d&quot;))
-
 basinmask_01 &lt;- read_csv(here::here(&quot;data&quot;,
                                     &quot;basinmask_01.msk&quot;),
                          skip = 1,
                          col_types = list(.default = &quot;d&quot;))
 
-# diff
+# select and rename basinmask
 basinmask_01 &lt;- basinmask_01 %&gt;% 
   select(Latitude: Longitude) %&gt;%
   rename(lat = Latitude, lon = Longitude)
 
+# select only latitude and longitude data
 section &lt;- basinmask_01 %&gt;%
   select(lon, lat)
 
+# select Atlantic section
 Atl_NS &lt;- section %&gt;%
   filter(
     lon == parameters$lon_Atl_section,
@@ -854,16 +889,19 @@ Atl_NS &lt;- section %&gt;%
   ) %&gt;%
   arrange(-lat)
 
+# select Atlantic-Southern Ocean section
 Atl_SO &lt;- section %&gt;%
   filter(lon &gt; parameters$lon_Atl_section,
          lat == parameters$lat_section_S) %&gt;%
   arrange(lon)
 
+# select Pacific-Southern Ocean section
 Pac_SO &lt;- section %&gt;%
   filter(lon &lt; parameters$lon_Pac_section,
          lat == parameters$lat_section_S) %&gt;%
   arrange(lon)
 
+# select Pacific Ocean section
 Pac_SN &lt;- section %&gt;%
   filter(
     lon == parameters$lon_Pac_section,
@@ -872,6 +910,7 @@ Pac_SN &lt;- section %&gt;%
   ) %&gt;%
   arrange(lat)
 
+# combine to the whole U-shape route
 section_global_coordinates &lt;- bind_rows(Atl_NS,
                      Atl_SO,
                      Pac_SO,
@@ -880,45 +919,36 @@ section_global_coordinates &lt;- bind_rows(Atl_NS,
 #section_global_coordinates &lt;- section_global_coordinates %&gt;%
 #  mutate(lon_180 = if_else(lon &gt; 180, lon - 360, lon))
 
+# calculate distance since the starting point
 section_global_coordinates &lt;- section_global_coordinates %&gt;%
   mutate(dist_int = distGeo(cbind(lon, lat)) / 1e6) %&gt;%   # diff
   mutate(dist = cumsum(dist_int))
 
+# select latitude, longitude, distance labels
 section_global_coordinates &lt;- section_global_coordinates %&gt;%
   select(lon, lat, dist) %&gt;% 
   drop_na()
 
-
 rm(Atl_NS, Atl_SO, Pac_SN, Pac_SO, section)
 
-var &lt;- melt(ncvar_get(nc_data, &quot;DIC&quot;))
-var &lt;- var %&gt;%
-  rename(lon = Var1,
-         lat = Var2,
-         depth = Var3,
-         month = Var4)</code></pre>
-<pre class="r"><code>library(dplyr)
-library(readr)
-library(ggplot2)
-# seperate Pacific, Atlantic, Indian Oceans
+# to be continued</code></pre>
+<pre class="r"><code># read in basinmask and landsea file
 basinmask_01 &lt;- read_csv(here::here(&quot;data&quot;,
                                     &quot;basinmask_01.msk&quot;),
                          skip = 1,
                          col_types = list(.default = &quot;d&quot;))
-
 basinmask_01 &lt;- basinmask_01 %&gt;% 
   select(Latitude:Basin_0m) %&gt;% 
   mutate(Basin_0m = as.factor(Basin_0m)) %&gt;% 
   rename(lat = Latitude, lon = Longitude)
-
 landsea_01 &lt;- read_csv(here::here(&quot;data&quot;,
                                     &quot;landsea_01.msk&quot;),
                          skip = 1,
                          col_types = list(.default = &quot;d&quot;))
-
 landsea_01 &lt;- landsea_01 %&gt;% 
   rename(lat = Latitude, lon = Longitude)
 
+# divide into Pacific, Indian and Pacific Ocean
 basinmask_01 &lt;- basinmask_01 %&gt;% 
   filter(Basin_0m %in% c(&quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;10&quot;, &quot;11&quot;, &quot;12&quot;, &quot;56&quot;),
          lat &lt;= parameters$lat_max) %&gt;% 
@@ -936,6 +966,7 @@ basinmask_01 &lt;- basinmask_01 %&gt;%
   select(-Basin_0m) 
 #  mutate(lon = if_else(lon &lt; 20, lon + 360, lon))
 
+# plot three ocean scope
 ggplot() +
   geom_raster(data = landsea_01,
               aes(lon, lat), fill = &quot;grey80&quot;) +
@@ -947,6 +978,7 @@ ggplot() +
         legend.title = element_blank(),
         axis.title = element_blank())
 
+# seperate Oceans with lat and lon
 basin_Pacific &lt;- basinmask_01 %&gt;%
   filter(basin_AIP==&quot;Pacific&quot;) 
 basin_Indian&lt;-basinmask_01 %&gt;%
@@ -954,12 +986,14 @@ basin_Indian&lt;-basinmask_01 %&gt;%
 basin_Atlantic&lt;-basinmask_01 %&gt;%
   filter(basin_AIP==&quot;Atlantic&quot;)
 
+# read in DIC data
 nc_data &lt;- tidync(here::here(&quot;data&quot;,
                       &quot;GIAF_JRA.pop.h.0354.nc&quot;))
 DIC &lt;- nc_data %&gt;%
   hyper_tibble(select_var = &quot;DIC&quot;) %&gt;%
   hyper_filter(depth = 500, month = 8)
 
+# join DIC tibbles and plot basin zonal mean DIC
 DIC_Pacific &lt;- left_join(basin_Pacific, DIC) %&gt;%
   group_by(lat) %&gt;%
   summarise(value = mean(value, na.rm = TRUE)) %&gt;%
@@ -1000,24 +1034,25 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] tidyselect_1.1.0 tidync_0.2.4     stars_0.4-3      sf_0.9-6        
-[5] abind_1.4-5      dplyr_1.0.2      ggplot2_3.3.2    ncdf4_1.17      
-[9] workflowr_1.6.2 
+ [1] tidyr_1.1.2      geosphere_1.5-10 readr_1.3.1      tidyselect_1.1.0
+ [5] tidync_0.2.4     stars_0.4-3      sf_0.9-6         abind_1.4-5     
+ [9] dplyr_1.0.2      ggplot2_3.3.2    ncdf4_1.17       workflowr_1.6.2 
 
 loaded via a namespace (and not attached):
- [1] xfun_0.17          purrr_0.3.4        colorspace_1.4-1   vctrs_0.3.4       
- [5] generics_0.0.2     htmltools_0.5.0    yaml_2.2.1         rlang_0.4.7       
- [9] e1071_1.7-3        later_1.1.0.1      pillar_1.4.6       glue_1.4.2        
-[13] withr_2.3.0        DBI_1.1.0          RNetCDF_2.4-2      lifecycle_0.2.0   
-[17] stringr_1.4.0      munsell_0.5.0      gtable_0.3.0       evaluate_0.14     
-[21] knitr_1.30         forcats_0.5.0      httpuv_1.5.4       parallel_3.6.1    
-[25] class_7.3-15       Rcpp_1.0.5         KernSmooth_2.23-15 promises_1.1.1    
-[29] scales_1.1.1       backports_1.1.10   classInt_0.4-3     lwgeom_0.2-5      
-[33] fs_1.5.0           digest_0.6.25      stringi_1.5.3      grid_3.6.1        
-[37] rprojroot_1.3-2    tools_3.6.1        magrittr_1.5       tibble_3.0.3      
-[41] crayon_1.3.4       whisker_0.4        pkgconfig_2.0.3    ellipsis_0.3.1    
-[45] rmarkdown_2.3      rstudioapi_0.10    R6_2.4.1           units_0.6-7       
-[49] ncmeta_0.3.0       git2r_0.27.1       compiler_3.6.1    </code></pre>
+ [1] xfun_0.17          purrr_0.3.4        lattice_0.20-38    colorspace_1.4-1  
+ [5] vctrs_0.3.4        generics_0.0.2     htmltools_0.5.0    yaml_2.2.1        
+ [9] rlang_0.4.7        e1071_1.7-3        later_1.1.0.1      pillar_1.4.6      
+[13] glue_1.4.2         withr_2.3.0        DBI_1.1.0          sp_1.4-2          
+[17] RNetCDF_2.4-2      lifecycle_0.2.0    stringr_1.4.0      munsell_0.5.0     
+[21] gtable_0.3.0       evaluate_0.14      knitr_1.30         forcats_0.5.0     
+[25] httpuv_1.5.4       parallel_3.6.1     class_7.3-15       Rcpp_1.0.5        
+[29] KernSmooth_2.23-15 promises_1.1.1     scales_1.1.1       backports_1.1.10  
+[33] classInt_0.4-3     lwgeom_0.2-5       fs_1.5.0           hms_0.5.3         
+[37] digest_0.6.25      stringi_1.5.3      grid_3.6.1         rprojroot_1.3-2   
+[41] tools_3.6.1        magrittr_1.5       tibble_3.0.3       crayon_1.3.4      
+[45] whisker_0.4        pkgconfig_2.0.3    ellipsis_0.3.1     rmarkdown_2.3     
+[49] rstudioapi_0.10    R6_2.4.1           units_0.6-7        ncmeta_0.3.0      
+[53] git2r_0.27.1       compiler_3.6.1    </code></pre>
 </div>
 </div>
 
