@@ -1,6 +1,6 @@
 ---
 title: "read_model_data"
-author: "Donghe Zhu"
+author: "Donghe Zhu and Dr Jens Daniel Müller"
 date:  "`r format(Sys.time(), '%d %B, %Y')`"
 output: workflowr::wflow_html
 editor_options:
