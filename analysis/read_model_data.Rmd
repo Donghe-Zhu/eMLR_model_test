@@ -9,17 +9,22 @@ editor_options:
 
 ##
 
-```{r,Load package}
+```{r Load package}
 library(ncdf4)
 library(ggplot2)
 library(dplyr)
 library(stars)
 library(tidync)
 library(tidyselect)
+library(readr)
+library(geosphere)
+library(tidyr)
 ```
 
-Read in file and extract variable DIC
-```{r Read in file and extract variable DIC, eval=FALSE}
+The error is in below "Read in file and extract variable DIC" chunk. I encounter problem when extracting variable DIC from the file (line 32). When I use hyper_tibble or hyper_filter to select variable DIC from 368 variables, I encounter with error "Error in hyper_array.tidync(x, ...) : no select_var variables available" or "Warning message: In hyper_filter.tidync(., select_var = "DIC"): 'select_var' not found in active grid, ignoring". 
+I want to get a tibble of DIC data, with labels of real latitude, longitude, depth, month and value (if not real latitude and longitude (grid sequence number), I also need to find how to link the real ones with the grid sequence number). But now I don't know how could I obtain the tibble with tidync.
+Since I fail in the data extraction, I an sure that there is some errors following this one. But as long as I can read in the data, I can figure out the following code. 
+```{r Read in file and extract variable DIC, eval = FALSE}
 # read in file
 nc_data <- tidync(here::here("data",
                       "GIAF_JRA.pop.h.0354.nc"))
@@ -28,7 +33,7 @@ nc_data <- tidync(here::here("data",
 DIC <- nc_data %>%
   hyper_tibble(select_var = "DIC")
 
-# rename DIC label
+# rename DIC labels
 DIC <- DIC %>%
   rename(lon = Var1,
          lat = Var2,
@@ -38,22 +43,16 @@ DIC <- DIC %>%
 print(DIC)
 ```
 
-Map of surface DIC value 
-```{r, eval=FALSE}
+```{r Map of surface DIC value, eval = FALSE}
 ggplot() +
   geom_raster(data=var,aes(x = lon, y = lat, fill = value)) +
   scale_fill_distiller(palette = 'Spectral', direction = 1) +
   scale_y_continuous(breaks=c(1,95,190,285,384),labels=c("-80","-40","0","40","80")) +
   scale_x_continuous(breaks=c(1,80,160,240,320),labels=c("320","50","140","230","320"))
-
 ```
 
-section_global_coordinates
-```{r, eval=FALSE}
-library(readr)
-library(geosphere)
-library(tidyr)
-
+```{r U-shape distance-depth plot, eval = FALSE}
+# set parameters
 parameters <- data.frame(
   lon_Atl_section = 335.5,
   lat_section_N = 60.5,
@@ -62,24 +61,26 @@ parameters <- data.frame(
   lat_max = 65
 )
 
+# read in mask files
 landsea_01 <- read_csv(here::here("data",
                                   "landsea_01.msk"),
                          skip = 1,
                          col_types = list(.default = "d"))
-
 basinmask_01 <- read_csv(here::here("data",
                                     "basinmask_01.msk"),
                          skip = 1,
                          col_types = list(.default = "d"))
 
-# diff
+# select and rename basinmask
 basinmask_01 <- basinmask_01 %>% 
   select(Latitude: Longitude) %>%
   rename(lat = Latitude, lon = Longitude)
 
+# select only latitude and longitude data
 section <- basinmask_01 %>%
   select(lon, lat)
 
+# select Atlantic section
 Atl_NS <- section %>%
   filter(
     lon == parameters$lon_Atl_section,
@@ -88,16 +89,19 @@ Atl_NS <- section %>%
   ) %>%
   arrange(-lat)
 
+# select Atlantic-Southern Ocean section
 Atl_SO <- section %>%
   filter(lon > parameters$lon_Atl_section,
          lat == parameters$lat_section_S) %>%
   arrange(lon)
 
+# select Pacific-Southern Ocean section
 Pac_SO <- section %>%
   filter(lon < parameters$lon_Pac_section,
          lat == parameters$lat_section_S) %>%
   arrange(lon)
 
+# select Pacific Ocean section
 Pac_SN <- section %>%
   filter(
     lon == parameters$lon_Pac_section,
@@ -106,6 +110,7 @@ Pac_SN <- section %>%
   ) %>%
   arrange(lat)
 
+# combine to the whole U-shape route
 section_global_coordinates <- bind_rows(Atl_NS,
                      Atl_SO,
                      Pac_SO,
@@ -114,48 +119,40 @@ section_global_coordinates <- bind_rows(Atl_NS,
 #section_global_coordinates <- section_global_coordinates %>%
 #  mutate(lon_180 = if_else(lon > 180, lon - 360, lon))
 
+# calculate distance since the starting point
 section_global_coordinates <- section_global_coordinates %>%
   mutate(dist_int = distGeo(cbind(lon, lat)) / 1e6) %>%   # diff
   mutate(dist = cumsum(dist_int))
 
+# select latitude, longitude, distance labels
 section_global_coordinates <- section_global_coordinates %>%
   select(lon, lat, dist) %>% 
   drop_na()
 
-
 rm(Atl_NS, Atl_SO, Pac_SN, Pac_SO, section)
 
-var <- melt(ncvar_get(nc_data, "DIC"))
-var <- var %>%
-  rename(lon = Var1,
-         lat = Var2,
-         depth = Var3,
-         month = Var4)
+# to be continued
+
 ```
 
-```{r, eval=FALSE}
-library(dplyr)
-library(readr)
-library(ggplot2)
-# seperate Pacific, Atlantic, Indian Oceans
+```{r Zonal mean DIC, eval = FALSE}
+# read in basinmask and landsea file
 basinmask_01 <- read_csv(here::here("data",
                                     "basinmask_01.msk"),
                          skip = 1,
                          col_types = list(.default = "d"))
-
 basinmask_01 <- basinmask_01 %>% 
   select(Latitude:Basin_0m) %>% 
   mutate(Basin_0m = as.factor(Basin_0m)) %>% 
   rename(lat = Latitude, lon = Longitude)
-
 landsea_01 <- read_csv(here::here("data",
                                     "landsea_01.msk"),
                          skip = 1,
                          col_types = list(.default = "d"))
-
 landsea_01 <- landsea_01 %>% 
   rename(lat = Latitude, lon = Longitude)
 
+# divide into Pacific, Indian and Pacific Ocean
 basinmask_01 <- basinmask_01 %>% 
   filter(Basin_0m %in% c("1", "2", "3", "10", "11", "12", "56"),
          lat <= parameters$lat_max) %>% 
@@ -173,6 +170,7 @@ basinmask_01 <- basinmask_01 %>%
   select(-Basin_0m) 
 #  mutate(lon = if_else(lon < 20, lon + 360, lon))
 
+# plot three ocean scope
 ggplot() +
   geom_raster(data = landsea_01,
               aes(lon, lat), fill = "grey80") +
@@ -184,6 +182,7 @@ ggplot() +
         legend.title = element_blank(),
         axis.title = element_blank())
 
+# seperate Oceans with lat and lon
 basin_Pacific <- basinmask_01 %>%
   filter(basin_AIP=="Pacific") 
 basin_Indian<-basinmask_01 %>%
@@ -191,12 +190,14 @@ basin_Indian<-basinmask_01 %>%
 basin_Atlantic<-basinmask_01 %>%
   filter(basin_AIP=="Atlantic")
 
+# read in DIC data
 nc_data <- tidync(here::here("data",
                       "GIAF_JRA.pop.h.0354.nc"))
 DIC <- nc_data %>%
   hyper_tibble(select_var = "DIC") %>%
   hyper_filter(depth = 500, month = 8)
 
+# join DIC tibbles and plot basin zonal mean DIC
 DIC_Pacific <- left_join(basin_Pacific, DIC) %>%
   group_by(lat) %>%
   summarise(value = mean(value, na.rm = TRUE)) %>%
