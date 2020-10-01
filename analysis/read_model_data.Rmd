@@ -1,5 +1,5 @@
 ---
-title: "read_model_data"
+title: "Read and plot model data"
 author: "Donghe Zhu and Dr Jens Daniel Müller"
 date:  "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
@@ -19,9 +19,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
 
-# Basic settings
-
-## Required Packages
+# Required Packages
 
 ```{r Load_package}
 library(tidyverse) # the tidverse combines several packages
@@ -34,12 +32,11 @@ library(geosphere)
 library(PCICt)
 ```
 
-## ggplot theme
 
 ```{r ggplot_theme, include = FALSE}
+# ggplot theme for all plots
 theme_set(theme_bw())
 ```
-
 
 # Read data from netcdf file
 
