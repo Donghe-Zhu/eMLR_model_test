@@ -9,16 +9,14 @@ editor_options:
 
 ##
 
-```{r Load package}
+```{r Load_package}
+library(tidyverse) # the tidverse combines several packages
+
 library(ncdf4)
-library(ggplot2)
-library(dplyr)
 library(stars)
 library(tidync)
 library(tidyselect)
-library(readr)
 library(geosphere)
-library(tidyr)
 ```
 
 The error is in below "Read in file and extract variable DIC" chunk. I encounter problem when extracting variable DIC from the file (line 32). When I use hyper_tibble or hyper_filter to select variable DIC from 368 variables, I encounter with error "Error in hyper_array.tidync(x, ...) : no select_var variables available" or "Warning message: In hyper_filter.tidync(., select_var = "DIC"): 'select_var' not found in active grid, ignoring". 
