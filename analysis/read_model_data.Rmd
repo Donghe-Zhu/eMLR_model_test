@@ -23,7 +23,7 @@ library(tidyr)
 
 The error is in below "Read in file and extract variable DIC" chunk. I encounter problem when extracting variable DIC from the file (line 32). When I use hyper_tibble or hyper_filter to select variable DIC from 368 variables, I encounter with error "Error in hyper_array.tidync(x, ...) : no select_var variables available" or "Warning message: In hyper_filter.tidync(., select_var = "DIC"): 'select_var' not found in active grid, ignoring". 
 
-I want to get a tibble of DIC data, with labels of real latitude, longitude, depth, month and value (if not real latitude and longitude (grid sequence number), I also need to find how to link the real ones with the grid sequence number). But now I don't know how could I obtain the tibble with tidync.
+I want to get a tibble of DIC data, with labels of real latitude, longitude, depth, month and value (if not real latitude and longitude (grid sequence number), I also need to find how to link the real ones with the grid sequence number). But now I don't know how could I obtain the DIC tibble with tidync.
 
 Since I fail in the data extraction, I am sure that there are some errors following this one. But as long as I can read in the data, I can figure out the following code. 
 ```{r Read in file and extract variable DIC, eval = FALSE}
