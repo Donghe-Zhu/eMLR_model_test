@@ -13,7 +13,7 @@ editor_options:
 ---
 
 
-```{r global_options, include = FALSE}
+```{r global_options}
 # Some basic settings to improve the html output
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
@@ -23,7 +23,6 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 
 ```{r Load_package}
 library(tidyverse) # the tidverse combines several packages
-
 library(ncdf4)
 library(stars)
 library(tidync)
@@ -33,7 +32,7 @@ library(PCICt)
 ```
 
 
-```{r ggplot_theme, include = FALSE}
+```{r ggplot_theme}
 # ggplot theme for all plots
 theme_set(theme_bw())
 ```
@@ -60,17 +59,11 @@ nc_data_tibble <- nc_data %>%
 nc_data_tibble_surface <- nc_data_tibble %>%
   filter(z_t == 500)
 
-# filter winter data
-nc_data_tibble_surface_winter <- nc_data_tibble_surface %>%
-  filter(time == as.PCICt("0354-12-30", cal = "365_day"))
-
-nc_data_tibble_surface_winter <- nc_data_tibble_surface_winter %>%
-  mutate(DIC = as.numeric(DIC))
-
-nc_data_tibble_surface_winter <- nc_data_tibble_surface_winter %>%
+# filter August data
+nc_data_tibble_surface_Aug <- nc_data_tibble_surface %>%
+  filter(time == as.PCICt("0355-07-30", cal = "365_day")) %>%
+  mutate(DIC = as.numeric(DIC)) %>%
   filter(!is.na(DIC))
-
-
 
 ```
 
@@ -78,7 +71,7 @@ nc_data_tibble_surface_winter <- nc_data_tibble_surface_winter %>%
 
 ```{r Map_surface_DIC}
 
-nc_data_tibble_surface_winter %>%
+nc_data_tibble_surface_Aug %>%
   filter(DIC > 1800) %>%
   ggplot() +
   geom_point(aes(nlon, nlat, col = DIC)) +
@@ -88,7 +81,7 @@ nc_data_tibble_surface_winter %>%
 ```
 
 
-```{r U-shape distance-depth plot, eval = FALSE}
+```{r U-shape distance-depth plot}
 # set parameters
 parameters <- data.frame(
   lon_Atl_section = 335.5,
@@ -167,12 +160,31 @@ section_global_coordinates <- section_global_coordinates %>%
   drop_na()
 
 rm(Atl_NS, Atl_SO, Pac_SN, Pac_SO, section)
-
-# to be continued
-
+DIC_all_depthes <- nc_data_tibble %>%
+  filter(time == as.PCICt("0355-07-30", cal = "365_day")) %>%
+  select(nlon,nlat,z_t,DIC) %>%
+  rename(lon=nlon,
+         lat=nlat,
+         depth=z_t,
+         value=DIC)
+DIC_all_depthes$lon<-round(DIC_all_depthes$lon+0.5)-0.5
+DIC_all_depthes$lat<-round(DIC_all_depthes$lat+0.5)-0.5
+DIC_all_depthes$value<-as.numeric(DIC_all_depthes$value)
+DIC_path<-left_join(section_global_coordinates, DIC_all_depthes) %>%
+  na.omit()
 ```
 
-```{r Zonal mean DIC, eval = FALSE}
+```{r}
+DIC_path %>% 
+    ggplot(aes(dist, depth, color = value)) +
+    geom_point() +
+    # scale_color_discrete() +
+    # scale_colour_gradientn(colours = c("red", "white", "blue")) +
+    scale_y_reverse() +
+    scale_color_viridis_c()
+```
+
+```{r Zonal mean DIC}
 # read in basinmask and landsea file
 basinmask_01 <- read_csv(here::here("data",
                                     "basinmask_01.msk"),
@@ -205,7 +217,7 @@ basinmask_01 <- basinmask_01 %>%
            Basin_0m == "56" ~ "Pacific",
            Basin_0m == "10" & lon >= 147 | lon < -63 ~ "Pacific")) %>% 
   select(-Basin_0m) 
-#  mutate(lon = if_else(lon < 20, lon + 360, lon))
+  #mutate(lon = if_else(lon < 0, lon + 360, lon))
 
 # plot three ocean scope
 ggplot() +
@@ -226,31 +238,42 @@ basin_Indian<-basinmask_01 %>%
   filter(basin_AIP=="Indian") 
 basin_Atlantic<-basinmask_01 %>%
   filter(basin_AIP=="Atlantic")
+```
 
-# read in DIC data
-nc_data <- tidync(here::here("data",
-                      "GIAF_JRA.pop.h.0354.nc"))
-DIC <- nc_data %>%
-  hyper_tibble(select_var = "DIC") %>%
-  hyper_filter(depth = 500, month = 8)
+```{r}
+
+# filter surface data
+DIC<- nc_data_tibble_surface_Aug %>%
+  select(nlon,nlat,DIC) %>%
+  rename(lon=nlon,
+         lat=nlat,
+         value=DIC)
+
+DIC$lon<-round(DIC$lon+0.5)-0.5
+DIC$lat<-round(DIC$lat+0.5)-0.5
+DIC$lon<-if_else(DIC$lon > 180, DIC$lon - 360, DIC$lon)
 
 # join DIC tibbles and plot basin zonal mean DIC
 DIC_Pacific <- left_join(basin_Pacific, DIC) %>%
   group_by(lat) %>%
   summarise(value = mean(value, na.rm = TRUE)) %>%
-  ggplot(aes(lat, value)) +
+  ggplot(aes(lat, value)) + 
+  geom_line() +
   labs(title = "Zone Mean DIC", subtitle = "Subsection: Pacific Ocean", x = "Latitude", y = expression(paste("DIC (gC m"^-2, "s"^-1, ")")))
 
 DIC_Indian <- left_join(basin_Indian, DIC) %>%
   group_by(lat) %>%
   summarise(value = mean(value, na.rm = TRUE)) %>%
   ggplot(aes(lat, value)) +
+  geom_line() +
   labs(title = "Zone Mean DIC", subtitle = "Subsection: Indian Ocean", x = "Latitude", y = expression(paste("DIC (gC m"^-2, "s"^-1, ")")))
 
 DIC_Atlantic <- left_join(basin_Atlantic, DIC) %>%
   group_by(lat) %>%
   summarise(value = mean(value, na.rm = TRUE)) %>%
   ggplot(aes(lat, value)) +
+  geom_line() +
   labs(title = "Zone Mean DIC", subtitle = "Subsection: Atlantic Ocean", x = "Latitude", y = expression(paste("DIC (gC m"^-2, "s"^-1, ")")))
+
 ```
 
