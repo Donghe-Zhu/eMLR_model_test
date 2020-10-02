@@ -260,6 +260,7 @@ DIC_Pacific <- left_join(basin_Pacific, DIC) %>%
   ggplot(aes(lat, value)) + 
   geom_line() +
   labs(title = "Zone Mean DIC", subtitle = "Subsection: Pacific Ocean", x = "Latitude", y = expression(paste("DIC (gC m"^-2, "s"^-1, ")")))
+DIC_Pacific
 
 DIC_Indian <- left_join(basin_Indian, DIC) %>%
   group_by(lat) %>%
@@ -267,6 +268,7 @@ DIC_Indian <- left_join(basin_Indian, DIC) %>%
   ggplot(aes(lat, value)) +
   geom_line() +
   labs(title = "Zone Mean DIC", subtitle = "Subsection: Indian Ocean", x = "Latitude", y = expression(paste("DIC (gC m"^-2, "s"^-1, ")")))
+DIC_Indian
 
 DIC_Atlantic <- left_join(basin_Atlantic, DIC) %>%
   group_by(lat) %>%
@@ -274,6 +276,6 @@ DIC_Atlantic <- left_join(basin_Atlantic, DIC) %>%
   ggplot(aes(lat, value)) +
   geom_line() +
   labs(title = "Zone Mean DIC", subtitle = "Subsection: Atlantic Ocean", x = "Latitude", y = expression(paste("DIC (gC m"^-2, "s"^-1, ")")))
-
+DIC_Atlantic
 ```
 
