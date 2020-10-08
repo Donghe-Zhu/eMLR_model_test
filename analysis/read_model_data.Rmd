@@ -336,8 +336,8 @@ nc_data_tibble <- nc_data_tibble %>%
   mutate(SiO3 = as.numeric(SiO3))
 
 # filter Nan values
-nc_data_tibble <- nc_data_tibble %>%
-  filter(!is.na(DIC))
+#nc_data_tibble <- nc_data_tibble %>%
+#  filter(!is.na(DIC))
 
 # filter surface data
 nc_data_tibble_surface <- nc_data_tibble %>%
@@ -522,8 +522,8 @@ nc_data_tibble <- nc_data_tibble %>%
   select(-time)
 nc_data_tibble$lon <- round(nc_data_tibble$lon + 0.5) - 0.5
 nc_data_tibble$lat <- round(nc_data_tibble$lat + 0.5) - 0.5
-nc_data_tibble <- inner_join(nc_data_tibble, basinmask_01) %>%
-  filter(!is.na(DIC))
+nc_data_tibble <- inner_join(nc_data_tibble, basinmask_01)
+ # filter(!is.na(DIC))
 
 ```
 
