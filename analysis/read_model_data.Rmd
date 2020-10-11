@@ -522,8 +522,8 @@ nc_data_tibble <- nc_data_tibble %>%
   select(-time)
 nc_data_tibble$lon <- round(nc_data_tibble$lon + 0.5) - 0.5
 nc_data_tibble$lat <- round(nc_data_tibble$lat + 0.5) - 0.5
-nc_data_tibble <- inner_join(nc_data_tibble, basinmask_01)
- # filter(!is.na(DIC))
+nc_data_tibble <- inner_join(nc_data_tibble, basinmask_01) 
+#  filter(!is.na(DIC))
 
 ```
 

@@ -1,0 +1,151 @@
+---
+title: "Read and plot GLODAPv2 data"
+author: "Donghe Zhu and Dr Jens Daniel Müller"
+date:  "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  workflowr::wflow_html:
+    number_sections: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+editor_options:
+  chunk_output_type: console
+---
+
+
+```{r global_options}
+# Some basic settings to improve the html output
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+
+# Required Packages
+
+```{r Load_package}
+library(tidyverse) # the tidverse combines several packages
+library(ncdf4)
+library(stars)
+library(tidync)
+library(tidyselect)
+library(geosphere)
+library(PCICt)
+library(lubridate)
+```
+
+
+```{r ggplot_theme}
+# ggplot theme for all plots
+theme_set(theme_bw())
+```
+
+# The problem I encounter here is that I want to extract the month from model data. First, I convert from Pcict to Date form, but the process takes hours and I don't know why.
+# Read and preprocess data from netcdf file
+```{r read_file_and_extract_data, eval=FALSE}
+
+# read DIC from netcdf file
+nc_data <- read_ncdf(here::here("data",
+                                "GIAF_JRA.pop.h.0354.nc"),
+                     var = "DIC")
+
+# convert to tibble
+nc_data_tibble <- nc_data %>%
+  as.tibble() %>%
+  mutate(nlon = if_else(nlon < 20, nlon + 360, nlon)) %>%
+  mutate(z_t = z_t / 100) %>%
+  rename(lon = nlon, lat = nlat, depth = z_t) %>%
+  mutate(DIC = as.numeric(DIC)) %>%
+  filter(!is.na(DIC))
+
+# convert time to month
+
+nc_data_tibble <- nc_data_tibble %>%
+  mutate(time = as.Date.character(time))
+nc_data_tibble <- nc_data_tibble %>%
+  mutate(time = month(time) + 1) %>%
+  mutate(time = if_else(time == 13, 1, time))
+  rename(month = time)
+
+nc_data_tibble <- nc_data_tibble %>%
+  mutate(time = as.POSIXct(time)) %>%
+  mutate(time = month(time) + 1) %>%
+  mutate(time = if_else(time == 13, 1, time))
+  rename(month = time)
+  
+nc_data_tibble %>% 
+  write_csv(here::here("data",
+                       "GIAF_JRA.pop.h.0354_as_date.nc"))
+
+```
+
+# Read data from netcdf and csv file
+```{r Read_file_and_extract_data, eval=FALSE}
+# read csv file
+GLODAP <-
+  read_csv(
+    here::here(
+      "data",
+      "GLODAPv2.2020_clean_2007.csv"
+    ))
+
+landmask <- 
+  read_csv(here::here("data/World_Ocean_Atlas_2018/_summarized_files",
+                       "land_mask_WOA18.csv"))
+
+# convert time to month
+GLODAP_clean <- GLODAP %>%
+  mutate(date = month(date)) %>%
+  rename(month = date)un
+
+# plot GLODAP sites
+ggplot() + 
+  geom_raster(data = landmask,
+              aes(lon, lat), fill = "grey80") +
+  geom_point(data = GLODAP_clean,
+             aes(lon, lat)) 
+
+```
+
+# Besides, for subseting the model data with observations based on near lat, lon, depth and month. I wonder if you have some code or references, I find it kind of difficult to make it by myself.
+
+
+# This part is the problem I encounter in read_model_data.RMD and I just copy here. When I extract all the interested data from the file and filter the NaN value, I always encounter a erre r: Error: vector memory exhausted (limit reached?). I wonder how could I avoid it.
+
+### Read netcdf
+```{r read_file, eval=FALSE}
+# read one variable from file
+nc_data <- read_ncdf(here::here("data",
+                                "GIAF_JRA.pop.h.0354.nc"),
+                     var = c("DIC", "ALK", "O2", "AOU", "NO3", "PO4", "SALT", "TEMP", "SiO3"))
+
+# convert to tibble
+nc_data_tibble <- nc_data %>%
+  as.tibble() %>%
+  mutate(nlon = if_else(nlon < 20, nlon + 360, nlon)) %>%
+  mutate(z_t = z_t / 100) %>%
+  rename(lon = nlon, lat = nlat, depth = z_t)
+
+# convert as numeric
+nc_data_tibble <- nc_data_tibble %>%
+  mutate(DIC = as.numeric(DIC)) %>%
+  mutate(ALK = as.numeric(ALK)) %>%
+  mutate(O2 = as.numeric(O2)) %>%
+  mutate(AOU = as.numeric(AOU)) %>%
+  mutate(NO3 = as.numeric(NO3)) %>%
+  mutate(PO4 = as.numeric(PO4)) %>%
+  mutate(SALT = as.numeric(SALT)) %>%
+  mutate(TEMP = as.numeric(TEMP)) %>%
+  mutate(SiO3 = as.numeric(SiO3))
+
+# filter NaN values
+nc_data_tibble <- nc_data_tibble %>%
+  filter(!is.na(DIC))
+
+# filter surface data
+nc_data_tibble_surface <- nc_data_tibble %>%
+  filter(depth == 5)
+
+# filter August data
+nc_data_tibble_surface_Aug <- nc_data_tibble_surface %>%
+  filter(time == as.PCICt("0355-07-30", cal = "365_day")) 
+
+```
