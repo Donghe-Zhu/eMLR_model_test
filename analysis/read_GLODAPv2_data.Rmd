@@ -64,7 +64,7 @@ nc_data_tibble <- nc_data_tibble %>%
   mutate(time = month(time) + 1) %>%
   mutate(time = if_else(time == 13, 1, time))
   rename(month = time)
-
+# or use
 nc_data_tibble <- nc_data_tibble %>%
   mutate(time = as.POSIXct(time)) %>%
   mutate(time = month(time) + 1) %>%
