@@ -309,7 +309,55 @@ We produced following plots for those variables:
 ## Global surface distribution
 
 ### Read netcdf
+Below I think there are two ways to achieve the regriding. I prefer the first one, although there are more errors here than the second simpler one.
 ```{r read_file_and_regrid_data, eval=FALSE}
+
+# method 1
+
+read_regrid <- function(var) {
+  
+#### here need to set nc_data_tibble_regrided as a empty table first, but I am not sure how to set it.
+  
+for(i_var in var) { 
+  nc_data <- read_ncdf(here::here("data",
+                                "GIAF_JRA.pop.h.0354.nc"),
+                     var = i_var)
+  
+  # convert to tibble and regrid to 1° x 1°
+  nc_data_tibble <- nc_data %>%
+  as.tibble() %>%
+  mutate(nlon = if_else(nlon < 20, nlon + 360, nlon)) %>%
+  rename(lon = nlon, lat = nlat, depth = z_t) %>%
+  mutate(lat = cut(lat, seq(-90, 90, 1), seq(-89.5, 89.5, 1)),
+         lat = as.numeric(as.character(lat)),
+         lon = cut(lon, seq(20, 380, 1), seq(20.5, 379.5, 1)),
+         lon = as.numeric(as.character(lon))) %>%
+  mutate(depth = depth / 100)
+
+# convert as numeric
+  nc_data_tibble <- nc_data_tibble %>%
+  mutate(i_var = as.numeric(i_var)) %>%
+  filter(!is.na(i_var))
+
+# average for the same 4D values
+nc_data_tibble <- nc_data_tibble %>%
+  fgroup_by(lon, lat, depth, time) %>% {
+   add_vars(fgroup_vars(.,"unique"),
+            fmean(., keep.group_vars = FALSE) %>% add_stub(pre = FALSE, "_mean"))
+  }
+
+nc_data_tibble_regrided = full_join(nc_data_tibble_regrided, nc_data_tibble)
+
+}
+  
+reture(nc_data_tibble_regrided)
+
+}
+
+nc_data_tibble_regrided <- read_regrid(c("DIC","ALK","O2","AOU","NO3","PO4","SALT","TEMP","SiO3"))
+
+# Or use  ########################################
+# method 2
 
 read_regrid <- function(var) {
   
@@ -344,12 +392,23 @@ reture(nc_data_tibble)
 
 }
 
-nc_data_tibble_regrid <- read_regrid("DIC")
+nc_data_tibble_regrid_DIC <- read_regrid("DIC")
+nc_data_tibble_regrid_ALK <- read_regrid("ALK")
+nc_data_tibble_regrid_O2 <- read_regrid("O2")
+nc_data_tibble_regrid_AOU <- read_regrid("AOU")
+nc_data_tibble_regrid_NO3 <- read_regrid("NO3")
+nc_data_tibble_regrid_PO4 <- read_regrid("PO4")
+nc_data_tibble_regrid_SALT <- read_regrid("SALT")
+nc_data_tibble_regrid_TEMP <- read_regrid("TEMP")
+nc_data_tibble_regrid_SiO3 <- read_regrid("SiO3")
+
+nc_data_tibble_regrided <- full_join(c(nc_data_tibble_regrid_DIC,nc_data_tibble_regrid_ALK,nc_data_tibble_regrid_O2,nc_data_tibble_regrid_AOU,nc_data_tibble_regrid_NO3,nc_data_tibble_regrid_PO4,nc_data_tibble_regrid_SALT,nc_data_tibble_regrid_TEMP,nc_data_tibble_regrid_SiO3))
 
 
+####################################################
   
 # filter surface data
-nc_data_tibble_surface <- nc_data_tibble %>%
+nc_data_tibble_surface <- nc_data_tibble_regrided %>%
   filter(depth == 5)
 
 # filter August data
