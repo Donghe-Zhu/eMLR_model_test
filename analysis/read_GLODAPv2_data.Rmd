@@ -57,19 +57,11 @@ nc_data_tibble <- nc_data %>%
   filter(!is.na(DIC))
 
 # convert time to month
+nc_data_tibble <- nc_data_tibble %>%
+  mutate(time = month(time) + 1) %>%
+  mutate(time = if_else(time == 13, 1, time)) %>%
+  rename(month = time)
 
-nc_data_tibble <- nc_data_tibble %>%
-  mutate(time = as.Date.character(time))
-nc_data_tibble <- nc_data_tibble %>%
-  mutate(time = month(time) + 1) %>%
-  mutate(time = if_else(time == 13, 1, time))
-  rename(month = time)
-# or use
-nc_data_tibble <- nc_data_tibble %>%
-  mutate(time = as.POSIXct(time)) %>%
-  mutate(time = month(time) + 1) %>%
-  mutate(time = if_else(time == 13, 1, time))
-  rename(month = time)
   
 nc_data_tibble %>% 
   write_csv(here::here("data",
@@ -94,7 +86,7 @@ landmask <-
 # convert time to month
 GLODAP_clean <- GLODAP %>%
   mutate(date = month(date)) %>%
-  rename(month = date)un
+  rename(month = date)
 
 # plot GLODAP sites
 ggplot() + 

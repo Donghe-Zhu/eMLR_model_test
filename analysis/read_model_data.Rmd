@@ -28,6 +28,7 @@ library(tidyselect)
 library(geosphere)
 library(PCICt)
 library(patchwork)
+library(collapse)
 ```
 
 
@@ -61,7 +62,7 @@ theme_set(theme_bw())
 
 The land sea mask with 1x1° resolution from the file `landsea_01.msk` was used.
 
-```{r read_landsea_mask}
+```{r read_landsea_mask, eval=FALSE}
 
 landsea_01 <- read_csv(here::here("data/World_Ocean_Atlas_2018",
                                   "landsea_01.msk"),
@@ -78,7 +79,7 @@ According to the [WOA18 documentation](https://data.nodc.noaa.gov/woa/WOA18/DOC/
 
 The landmask was derived as coordinates with value 1.
 
-```{r assign_region_labels}
+```{r assign_region_labels, eval=FALSE}
 
 landmask <- landsea_01 %>% 
   mutate(region = if_else(Bottom_Standard_Level == "1",
@@ -105,7 +106,7 @@ rm(landsea_01)
 
 The surface mask (0m) with 1x1° resolution from the file `basinmask_01.msk` was used.
 
-```{r read_basinmask}
+```{r read_basinmask, eval=FALSE}
 
 basinmask_01 <- read_csv(here::here("data/World_Ocean_Atlas_2018",
                                     "basinmask_01.msk"),
@@ -144,7 +145,7 @@ Pacific Ocean:
 
 For eMLR model fitting and mapping, Indian and Pacific Ocean were combined as Indo-Pacific.
 
-```{r assign_basin_labels}
+```{r assign_basin_labels, eval=FALSE}
 
 basinmask_01 <- basinmask_01 %>% 
   filter(Basin_0m %in% c("1", "2", "3", "10", "11", "12", "56"),
@@ -170,7 +171,7 @@ basinmask_01 <- basinmask_01 %>%
 
 ### Map
 
-```{r basin_masks_WOA18_map, fig.asp=0.6}
+```{r basin_masks_WOA18_map, fig.asp=0.6, eval=FALSE}
 
 ggplot() +
   geom_raster(data = landmask,
@@ -190,7 +191,7 @@ ggplot() +
 
 To plot sections from the North Atlantic south to the Southern Ocean, around Antartica and back North across the Pacific Ocean, corresponding coordinates were subsetted from the basin mask and distances between coordinate grid points calculated.
 
-```{r create_section_global}
+```{r create_section_global, eval=FALSE}
 
 section <- basinmask_01 %>%
   select(lon, lat)
@@ -242,7 +243,7 @@ rm(Atl_NS, Atl_SO, Pac_SN, Pac_SO, section)
 
 ```
 
-```{r section_global_map, fig.asp=0.6}
+```{r section_global_map, fig.asp=0.6, eval=FALSE}
 
 ggplot() +
   geom_raster(data = landmask,
@@ -258,11 +259,9 @@ ggplot() +
 ```
 
 
-
-
 ## Write files
 
-```{r write_files}
+```{r write_files, eval=FALSE}
 
 basinmask_01 %>% 
   write_csv(here::here("data/World_Ocean_Atlas_2018/_summarized_files",
@@ -304,41 +303,51 @@ Our variables of interest are:
 We produced following plots for those variables:
 
 - Map of surface value (depth = 5m, for month of Aug)
-- Section- Depth plot along path from North Altantic -> Southern Ocean -> North Pacific
+- Section - Depth plot along path from North Altantic -> Southern Ocean -> North Pacific
 - Zonal mean section for each basin (Atlantic, Indian, Pacific)
 
 ## Global surface distribution
 
 ### Read netcdf
-```{r read_file_and_extract_data}
-# read one variable from file
-nc_data <- read_ncdf(here::here("data",
-                                "GIAF_JRA.pop.h.0354.nc"),
-                     var = c("DIC", "ALK", "O2", "AOU", "NO3", "PO4", "SALT", "TEMP", "SiO3"))
+```{r read_file_and_regrid_data, eval=FALSE}
 
-# convert to tibble
-nc_data_tibble <- nc_data %>%
+read_regrid <- function(var) {
+  
+  nc_data <- read_ncdf(here::here("data",
+                                "GIAF_JRA.pop.h.0354.nc"),
+                     var = var)
+  
+  # convert to tibble and regrid to 1° x 1°
+  nc_data_tibble <- nc_data %>%
   as.tibble() %>%
   mutate(nlon = if_else(nlon < 20, nlon + 360, nlon)) %>%
-  mutate(z_t = z_t / 100) %>%
-  rename(lon = nlon, lat = nlat, depth = z_t)
+  rename(lon = nlon, lat = nlat, depth = z_t) %>%
+  mutate(lat = cut(lat, seq(-90, 90, 1), seq(-89.5, 89.5, 1)),
+         lat = as.numeric(as.character(lat)),
+         lon = cut(lon, seq(20, 380, 1), seq(20.5, 379.5, 1)),
+         lon = as.numeric(as.character(lon))) %>%
+  mutate(depth = depth / 100)
 
 # convert as numeric
+  nc_data_tibble <- nc_data_tibble %>%
+  mutate(var = as.numeric(var)) %>%
+  filter(!is.na(var))
+
+# average for the same 4D values
 nc_data_tibble <- nc_data_tibble %>%
-  mutate(DIC = as.numeric(DIC)) %>%
-  mutate(ALK = as.numeric(ALK)) %>%
-  mutate(O2 = as.numeric(O2)) %>%
-  mutate(AOU = as.numeric(AOU)) %>%
-  mutate(NO3 = as.numeric(NO3)) %>%
-  mutate(PO4 = as.numeric(PO4)) %>%
-  mutate(SALT = as.numeric(SALT)) %>%
-  mutate(TEMP = as.numeric(TEMP)) %>%
-  mutate(SiO3 = as.numeric(SiO3))
+  fgroup_by(lon, lat, depth, time) %>% {
+   add_vars(fgroup_vars(.,"unique"),
+            fmean(., keep.group_vars = FALSE) %>% add_stub(pre = FALSE, "_mean"))
+  }
 
-# filter Nan values
-#nc_data_tibble <- nc_data_tibble %>%
-#  filter(!is.na(DIC))
+reture(nc_data_tibble)
 
+}
+
+nc_data_tibble_regrid <- read_regrid("DIC")
+
+
+  
 # filter surface data
 nc_data_tibble_surface <- nc_data_tibble %>%
   filter(depth == 5)
@@ -349,8 +358,9 @@ nc_data_tibble_surface_Aug <- nc_data_tibble_surface %>%
 
 ```
 
+
 ### Map surface DIC
-```{r Map_surface_DIC}
+```{r Map_surface_DIC, eval=FALSE}
 
 nc_data_tibble_surface_Aug %>%
   filter(DIC > 1800) %>%
@@ -362,8 +372,11 @@ nc_data_tibble_surface_Aug %>%
 
 ```
 
+From the plot we can find surface DIC concentration is quite high in Southern Ocean, which may be caused by long residence time of water there. Besides, low SST also facilitates the dissolution of CO2.
+Moreover, equatorial region has lower surface DIC, probably due to the strong upwelling event happening there stop the absorption process.
+
 ### Map surface ALK
-```{r Map_surface_ALK}
+```{r Map_surface_ALK, eval=FALSE}
 
 nc_data_tibble_surface_Aug %>%
   filter(ALK > 2000) %>%
@@ -375,8 +388,10 @@ nc_data_tibble_surface_Aug %>%
 
 ```
 
+The ALK surface distribution has almost the same pattern as DIC, since ALK is most directly controled by DIC (Specifically, CO32- and HCO3-).
+
 ### Map surface O2
-```{r Map_surface_O2}
+```{r Map_surface_O2, eval=FALSE}
 
 nc_data_tibble_surface_Aug %>%
   filter(O2 > 0) %>%
@@ -388,8 +403,10 @@ nc_data_tibble_surface_Aug %>%
 
 ```
 
+O2 is mostly solubility-dependent (T related). Higher concentration found in polar regions. Relatively low concentration in Southern Ocean compared with Arctic Ocean probably because the short residence time.
+
 ### Map surface AOU
-```{r Map_surface_AOU}
+```{r Map_surface_AOU, eval=FALSE}
 
 nc_data_tibble_surface_Aug %>%
   filter(AOU > -60) %>%
@@ -401,8 +418,10 @@ nc_data_tibble_surface_Aug %>%
 
 ```
 
+Apparent Oxygen Utilization (AOU) is quite uniform in the whole oceans. There are some hot spots, e.g. equatorial Pacific and Antarctica margin, where intensive upwelling event brings quite old water from deep after respiration consumes lots of O2.
+
 ### Map surface NO3
-```{r Map_surface_NO3}
+```{r Map_surface_NO3, eval=FALSE}
 
 nc_data_tibble_surface_Aug %>%
   filter(NO3 > 0) %>%
@@ -414,8 +433,10 @@ nc_data_tibble_surface_Aug %>%
 
 ```
 
+Nitrogen and phosphorus are essential macronutrients for oceanic plants. Both of them are quite rich in depth, because remineralization process happens as organic matter produced at surface are transported downward. Thus, high concentration are found in intensive upwelling regions, e.g. equatorial Pacific and Southern Ocean. Concentration is also controled by near continent and ocean current, as coastal polution discharge is also a main source for Nitrogen.
+
 ### Map surface PO4
-```{r Map_surface_PO4}
+```{r Map_surface_PO4, eval=FALSE}
 
 nc_data_tibble_surface_Aug %>%
   filter(PO4 > 0) %>%
@@ -427,8 +448,10 @@ nc_data_tibble_surface_Aug %>%
 
 ```
 
+Same pattern as NO3-.
+
 ### Map surface SALT
-```{r Map_surface_SALT}
+```{r Map_surface_SALT, eval=FALSE}
 
 nc_data_tibble_surface_Aug %>%
   filter(SALT > 20) %>%
@@ -440,8 +463,10 @@ nc_data_tibble_surface_Aug %>%
 
 ```
 
+
+
 ### Map surface TEMP
-```{r Map_surface_TEMP}
+```{r Map_surface_TEMP, eval=FALSE}
 
 nc_data_tibble_surface_Aug %>%
   filter(TEMP > -2) %>%
@@ -453,8 +478,10 @@ nc_data_tibble_surface_Aug %>%
 
 ```
 
+
+
 ### Map surface SiO3
-```{r Map_surface_SiO3}
+```{r Map_surface_SiO3, eval=FALSE}
 
 nc_data_tibble_surface_Aug %>%
   filter(SiO3 < 90) %>%
@@ -466,10 +493,12 @@ nc_data_tibble_surface_Aug %>%
 
 ```
 
+
+
 ## Global section plot (U-shape)
 
 ### Define section global function
-```{r define section_global function}
+```{r define section_global function, eval=FALSE}
 section_global <- function(df, var) {
 
   name_var <- var
@@ -509,7 +538,7 @@ section_global <- function(df, var) {
 ```
 
 ### Modify data
-```{r Modify_data}
+```{r Modify_data, eval=FALSE}
 
 rm(nc_data, nc_data_tibble_surface, nc_data_tibble_surface_Aug)
 basinmask_01 <- 
@@ -528,7 +557,7 @@ nc_data_tibble <- inner_join(nc_data_tibble, basinmask_01)
 ```
 
 ### Global section
-```{r Global_section}
+```{r Global_section, eval=FALSE}
 
 section_global(nc_data_tibble, "DIC")
 section_global(nc_data_tibble, "ALK")
@@ -546,7 +575,7 @@ section_global(nc_data_tibble, "SiO3")
 ## Zonal section plot for each basin (Atlantic, Indian, Pacific)
 
 ### Define zonal mean section function
-```{r define_section_regional_function}
+```{r define_section_regional_function, eval=FALSE}
 
 section_zonal <- function(df, i_basin_AIP, var) {
 
@@ -592,7 +621,7 @@ section_zonal <- function(df, i_basin_AIP, var) {
 ```
 
 ### Zonal section plot for DIC
-```{r Zonal_section_DIC}
+```{r Zonal_section_DIC, eval=FALSE}
 
 for (i_basin_AIP in unique(nc_data_tibble$basin_AIP)) {
     
@@ -606,7 +635,7 @@ for (i_basin_AIP in unique(nc_data_tibble$basin_AIP)) {
 ```
 
 ### Zonal section plot for ALK
-```{r Zonal_section_ALK}
+```{r Zonal_section_ALK, eval=FALSE}
 
 for (i_basin_AIP in unique(nc_data_tibble$basin_AIP)) {
     
@@ -620,7 +649,7 @@ for (i_basin_AIP in unique(nc_data_tibble$basin_AIP)) {
 ```
 
 ### Zonal section plot for O2
-```{r Zonal_section_O2}
+```{r Zonal_section_O2, eval=FALSE}
 
 for (i_basin_AIP in unique(nc_data_tibble$basin_AIP)) {
     
@@ -634,7 +663,7 @@ for (i_basin_AIP in unique(nc_data_tibble$basin_AIP)) {
 ```
 
 ### Zonal section plot for AOU
-```{r Zonal_section_AOU}
+```{r Zonal_section_AOU, eval=FALSE}
 
 for (i_basin_AIP in unique(nc_data_tibble$basin_AIP)) {
     
@@ -648,7 +677,7 @@ for (i_basin_AIP in unique(nc_data_tibble$basin_AIP)) {
 ```
 
 ### Zonal section plot for NO3
-```{r Zonal_section_NO3}
+```{r Zonal_section_NO3, eval=FALSE}
 
 for (i_basin_AIP in unique(nc_data_tibble$basin_AIP)) {
     
@@ -662,7 +691,7 @@ for (i_basin_AIP in unique(nc_data_tibble$basin_AIP)) {
 ```
 
 ### Zonal section plot for PO4
-```{r Zonal_section_PO4}
+```{r Zonal_section_PO4, eval=FALSE}
 
 for (i_basin_AIP in unique(nc_data_tibble$basin_AIP)) {
     
@@ -676,7 +705,7 @@ for (i_basin_AIP in unique(nc_data_tibble$basin_AIP)) {
 ```
 
 ### Zonal section plot for SALT
-```{r Zonal_section_SALT}
+```{r Zonal_section_SALT, eval=FALSE}
 
 for (i_basin_AIP in unique(nc_data_tibble$basin_AIP)) {
     
@@ -690,7 +719,7 @@ for (i_basin_AIP in unique(nc_data_tibble$basin_AIP)) {
 ```
 
 ### Zonal section plot for TEMP
-```{r Zonal_section_TEMP}
+```{r Zonal_section_TEMP, eval=FALSE}
 
 for (i_basin_AIP in unique(nc_data_tibble$basin_AIP)) {
     
@@ -704,7 +733,7 @@ for (i_basin_AIP in unique(nc_data_tibble$basin_AIP)) {
 ```
 
 ### Zonal section plot for SiO3
-```{r Zonal_section_SiO3}
+```{r Zonal_section_SiO3, eval=FALSE}
 
 for (i_basin_AIP in unique(nc_data_tibble$basin_AIP)) {
     
