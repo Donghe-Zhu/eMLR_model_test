@@ -411,7 +411,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Read and plot model data</h1>
 <h4 class="author">Donghe Zhu and Dr Jens Daniel Müller</h4>
-<h4 class="date">09 十月, 2020</h4>
+<h4 class="date">13 十月, 2020</h4>
 
 </div>
 
@@ -436,7 +436,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-10-09
+<strong>Last updated:</strong> 2020-10-13
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -527,16 +527,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttree9c888348576e354be58ba603f42ef790b005bbdetargetblank9c88834a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/9c888348576e354be58ba603f42ef790b005bbde" target="_blank">9c88834</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttreeff6699cb8740fcdc6557ac978ef5ae73a5d0c80atargetblankff6699ca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/ff6699cb8740fcdc6557ac978ef5ae73a5d0c80a" target="_blank">ff6699c</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttree9c888348576e354be58ba603f42ef790b005bbdetargetblank9c88834a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttreeff6699cb8740fcdc6557ac978ef5ae73a5d0c80atargetblankff6699ca" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/9c888348576e354be58ba603f42ef790b005bbde" target="_blank">9c88834</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/ff6699cb8740fcdc6557ac978ef5ae73a5d0c80a" target="_blank">ff6699c</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -547,12 +547,10 @@ Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
     Ignored:    analysis/.DS_Store
-    Ignored:    analysis/figure/
     Ignored:    data/World_Ocean_Atlas_2018/
 
 Untracked files:
     Untracked:  DIC_path.csv
-    Untracked:  analysis/read_model_data的副本.Rmd
     Untracked:  code/Workflowr_project_managment.R
     Untracked:  section_global_coordinates.csv
 
@@ -593,6 +591,57 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/Donghe-Zhu/eMLR_model_test/blob/ff6699cb8740fcdc6557ac978ef5ae73a5d0c80a/analysis/read_model_data.Rmd" target="_blank">ff6699c</a>
+</td>
+<td>
+Donghe_Zhu
+</td>
+<td>
+2020-10-13
+</td>
+<td>
+problem
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/Donghe-Zhu/eMLR_model_test/blob/d5cf040065138114a81f19c500a022cf0b96a059/analysis/read_model_data.Rmd" target="_blank">d5cf040</a>
+</td>
+<td>
+Donghe_Zhu
+</td>
+<td>
+2020-10-11
+</td>
+<td>
+version1
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/Donghe-Zhu/eMLR_model_test/18c1c379c0130fdbc47569b950309001bcd9efa1/docs/read_model_data.html" target="_blank">18c1c37</a>
+</td>
+<td>
+Donghe_Zhu
+</td>
+<td>
+2020-10-09
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -1151,7 +1200,8 @@ library(tidync)
 library(tidyselect)
 library(geosphere)
 library(PCICt)
-library(patchwork)</code></pre>
+library(patchwork)
+library(collapse)</code></pre>
 <pre class="r"><code># ggplot theme for all plots
 theme_set(theme_bw())</code></pre>
 <div id="data-source" class="section level1">
@@ -1266,7 +1316,6 @@ basinmask_01 &lt;- basinmask_01 %&gt;%
   theme(legend.position = &quot;top&quot;,
         legend.title = element_blank(),
         axis.title = element_blank())</code></pre>
-<p><img src="figure/read_model_data.Rmd/basin_masks_WOA18_map-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="global-section" class="section level2">
@@ -1329,7 +1378,6 @@ rm(Atl_NS, Atl_SO, Pac_SN, Pac_SO, section)</code></pre>
   coord_quickmap(expand = 0) +
   theme(legend.position = &quot;top&quot;,
         axis.title = element_blank())</code></pre>
-<p><img src="figure/read_model_data.Rmd/section_global_map-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="write-files" class="section level2">
 <h2><span class="header-section-number">2.4</span> Write files</h2>
@@ -1371,41 +1419,50 @@ section_global_coordinates %&gt;%
 <p>We produced following plots for those variables:</p>
 <ul>
 <li>Map of surface value (depth = 5m, for month of Aug)</li>
-<li>Section- Depth plot along path from North Altantic -&gt; Southern Ocean -&gt; North Pacific</li>
+<li>Section - Depth plot along path from North Altantic -&gt; Southern Ocean -&gt; North Pacific</li>
 <li>Zonal mean section for each basin (Atlantic, Indian, Pacific)</li>
 </ul>
 <div id="global-surface-distribution" class="section level2">
 <h2><span class="header-section-number">3.1</span> Global surface distribution</h2>
 <div id="read-netcdf" class="section level3">
 <h3><span class="header-section-number">3.1.1</span> Read netcdf</h3>
-<pre class="r"><code># read one variable from file
-nc_data &lt;- read_ncdf(here::here(&quot;data&quot;,
+<pre class="r"><code>read_regrid &lt;- function(var) {
+  
+  nc_data &lt;- read_ncdf(here::here(&quot;data&quot;,
                                 &quot;GIAF_JRA.pop.h.0354.nc&quot;),
-                     var = c(&quot;DIC&quot;, &quot;ALK&quot;, &quot;O2&quot;, &quot;AOU&quot;, &quot;NO3&quot;, &quot;PO4&quot;, &quot;SALT&quot;, &quot;TEMP&quot;, &quot;SiO3&quot;))
-
-# convert to tibble
-nc_data_tibble &lt;- nc_data %&gt;%
+                     var = var)
+  
+  # convert to tibble and regrid to 1° x 1°
+  nc_data_tibble &lt;- nc_data %&gt;%
   as.tibble() %&gt;%
   mutate(nlon = if_else(nlon &lt; 20, nlon + 360, nlon)) %&gt;%
-  mutate(z_t = z_t / 100) %&gt;%
-  rename(lon = nlon, lat = nlat, depth = z_t)
+  rename(lon = nlon, lat = nlat, depth = z_t) %&gt;%
+  mutate(lat = cut(lat, seq(-90, 90, 1), seq(-89.5, 89.5, 1)),
+         lat = as.numeric(as.character(lat)),
+         lon = cut(lon, seq(20, 380, 1), seq(20.5, 379.5, 1)),
+         lon = as.numeric(as.character(lon))) %&gt;%
+  mutate(depth = depth / 100)
 
 # convert as numeric
+  nc_data_tibble &lt;- nc_data_tibble %&gt;%
+  mutate(var = as.numeric(var)) %&gt;%
+  filter(!is.na(var))
+
+# average for the same 4D values
 nc_data_tibble &lt;- nc_data_tibble %&gt;%
-  mutate(DIC = as.numeric(DIC)) %&gt;%
-  mutate(ALK = as.numeric(ALK)) %&gt;%
-  mutate(O2 = as.numeric(O2)) %&gt;%
-  mutate(AOU = as.numeric(AOU)) %&gt;%
-  mutate(NO3 = as.numeric(NO3)) %&gt;%
-  mutate(PO4 = as.numeric(PO4)) %&gt;%
-  mutate(SALT = as.numeric(SALT)) %&gt;%
-  mutate(TEMP = as.numeric(TEMP)) %&gt;%
-  mutate(SiO3 = as.numeric(SiO3))
+  fgroup_by(lon, lat, depth, time) %&gt;% {
+   add_vars(fgroup_vars(.,&quot;unique&quot;),
+            fmean(., keep.group_vars = FALSE) %&gt;% add_stub(pre = FALSE, &quot;_mean&quot;))
+  }
 
-# filter Nan values
-#nc_data_tibble &lt;- nc_data_tibble %&gt;%
-#  filter(!is.na(DIC))
+reture(nc_data_tibble)
 
+}
+
+nc_data_tibble_regrid &lt;- read_regrid(&quot;DIC&quot;)
+
+
+  
 # filter surface data
 nc_data_tibble_surface &lt;- nc_data_tibble %&gt;%
   filter(depth == 5)
@@ -1423,66 +1480,7 @@ nc_data_tibble_surface_Aug &lt;- nc_data_tibble_surface %&gt;%
   scale_color_viridis_c() +
   coord_quickmap(expand = 0) +
   labs(title = &quot;DIC Surface Distribution&quot;, subtitle = &quot;Depth: 5m  Month: August&quot;, x = &quot;Longitude&quot;, y = &quot;Latitude&quot;, colour = &quot;DIC [mmol/m3]&quot;)</code></pre>
-<p><img src="figure/read_model_data.Rmd/Map_surface_DIC-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-Map_surface_DIC-1">
-Past versions of Map_surface_DIC-1.png
-</button>
-</p>
-<div id="fig-Map_surface_DIC-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/Donghe-Zhu/eMLR_model_test/blob/9c888348576e354be58ba603f42ef790b005bbde/docs/figure/read_model_data.Rmd/Map_surface_DIC-1.png" target="_blank">9c88834</a>
-</td>
-<td>
-Donghe_Zhu
-</td>
-<td>
-2020-10-09
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/Donghe-Zhu/eMLR_model_test/blob/684fc397e4d1f7bf5adaf245bcdad1141a382410/docs/figure/read_model_data.Rmd/Map_surface_DIC-1.png" target="_blank">684fc39</a>
-</td>
-<td>
-Donghe_Zhu
-</td>
-<td>
-2020-10-02
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/Donghe-Zhu/eMLR_model_test/blob/27bb170f8157e627cdfeeeabc261018b9d1d8a2b/docs/figure/read_model_data.Rmd/Map_surface_DIC-1.png" target="_blank">27bb170</a>
-</td>
-<td>
-jens-daniel-mueller
-</td>
-<td>
-2020-10-01
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p>From the plot we can find surface DIC concentration is quite high in Southern Ocean, which may be caused by long residence time of water there. Besides, low SST also facilitates the dissolution of CO2. Moreover, equatorial region has lower surface DIC, probably due to the strong upwelling event happening there stop the absorption process.</p>
 </div>
 <div id="map-surface-alk" class="section level3">
 <h3><span class="header-section-number">3.1.3</span> Map surface ALK</h3>
@@ -1493,7 +1491,7 @@ jens-daniel-mueller
   scale_color_viridis_c() +
   coord_quickmap(expand = 0) +
   labs(title = &quot;ALK Surface Distribution&quot;, subtitle = &quot;Depth: 5m  Month: August&quot;, x = &quot;Longitude&quot;, y = &quot;Latitude&quot;, colour = &quot;ALK&quot;)</code></pre>
-<p><img src="figure/read_model_data.Rmd/Map_surface_ALK-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>The ALK surface distribution has almost the same pattern as DIC, since ALK is most directly controled by DIC (Specifically, CO32- and HCO3-).</p>
 </div>
 <div id="map-surface-o2" class="section level3">
 <h3><span class="header-section-number">3.1.4</span> Map surface O2</h3>
@@ -1504,7 +1502,7 @@ jens-daniel-mueller
   scale_color_viridis_c() +
   coord_quickmap(expand = 0) +
   labs(title = &quot;O2 Surface Distribution&quot;, subtitle = &quot;Depth: 5m  Month: August&quot;, x = &quot;Longitude&quot;, y = &quot;Latitude&quot;, colour = &quot;O2 [mmol/m3]&quot;)</code></pre>
-<p><img src="figure/read_model_data.Rmd/Map_surface_O2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>O2 is mostly solubility-dependent (T related). Higher concentration found in polar regions. Relatively low concentration in Southern Ocean compared with Arctic Ocean probably because the short residence time.</p>
 </div>
 <div id="map-surface-aou" class="section level3">
 <h3><span class="header-section-number">3.1.5</span> Map surface AOU</h3>
@@ -1515,7 +1513,7 @@ jens-daniel-mueller
   scale_color_viridis_c() +
   coord_quickmap(expand = 0) +
   labs(title = &quot;AOU Surface Distribution&quot;, subtitle = &quot;Depth: 5m  Month: August&quot;, x = &quot;Longitude&quot;, y = &quot;Latitude&quot;, colour = &quot;AOU [mmol/m3]&quot;)</code></pre>
-<p><img src="figure/read_model_data.Rmd/Map_surface_AOU-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Apparent Oxygen Utilization (AOU) is quite uniform in the whole oceans. There are some hot spots, e.g. equatorial Pacific and Antarctica margin, where intensive upwelling event brings quite old water from deep after respiration consumes lots of O2.</p>
 </div>
 <div id="map-surface-no3" class="section level3">
 <h3><span class="header-section-number">3.1.6</span> Map surface NO3</h3>
@@ -1526,7 +1524,7 @@ jens-daniel-mueller
   scale_color_viridis_c() +
   coord_quickmap(expand = 0) +
   labs(title = &quot;NO3 Surface Distribution&quot;, subtitle = &quot;Depth: 5m  Month: August&quot;, x = &quot;Longitude&quot;, y = &quot;Latitude&quot;, colour = &quot;NO3 [mmol/m3]&quot;)</code></pre>
-<p><img src="figure/read_model_data.Rmd/Map_surface_NO3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Nitrogen and phosphorus are essential macronutrients for oceanic plants. Both of them are quite rich in depth, because remineralization process happens as organic matter produced at surface are transported downward. Thus, high concentration are found in intensive upwelling regions, e.g. equatorial Pacific and Southern Ocean. Concentration is also controled by near continent and ocean current, as coastal polution discharge is also a main source for Nitrogen.</p>
 </div>
 <div id="map-surface-po4" class="section level3">
 <h3><span class="header-section-number">3.1.7</span> Map surface PO4</h3>
@@ -1537,7 +1535,7 @@ jens-daniel-mueller
   scale_color_viridis_c() +
   coord_quickmap(expand = 0) +
   labs(title = &quot;PO4 Surface Distribution&quot;, subtitle = &quot;Depth: 5m  Month: August&quot;, x = &quot;Longitude&quot;, y = &quot;Latitude&quot;, colour = &quot;PO4 [mmol/m3]&quot;)</code></pre>
-<p><img src="figure/read_model_data.Rmd/Map_surface_PO4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Same pattern as NO3-.</p>
 </div>
 <div id="map-surface-salt" class="section level3">
 <h3><span class="header-section-number">3.1.8</span> Map surface SALT</h3>
@@ -1548,7 +1546,6 @@ jens-daniel-mueller
   scale_color_viridis_c() +
   coord_quickmap(expand = 0) +
   labs(title = &quot;SALT Surface Distribution&quot;, subtitle = &quot;Depth: 5m  Month: August&quot;, x = &quot;Longitude&quot;, y = &quot;Latitude&quot;, colour = &quot;SALT [g/kg]&quot;)</code></pre>
-<p><img src="figure/read_model_data.Rmd/Map_surface_SALT-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="map-surface-temp" class="section level3">
 <h3><span class="header-section-number">3.1.9</span> Map surface TEMP</h3>
@@ -1559,7 +1556,6 @@ jens-daniel-mueller
   scale_color_viridis_c() +
   coord_quickmap(expand = 0) +
   labs(title = &quot;TEMP Surface Distribution&quot;, subtitle = &quot;Depth: 5m  Month: August&quot;, x = &quot;Longitude&quot;, y = &quot;Latitude&quot;, colour = &quot;TEMP [℃]&quot;)</code></pre>
-<p><img src="figure/read_model_data.Rmd/Map_surface_TEMP-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="map-surface-sio3" class="section level3">
 <h3><span class="header-section-number">3.1.10</span> Map surface SiO3</h3>
@@ -1570,7 +1566,6 @@ jens-daniel-mueller
   scale_color_viridis_c() +
   coord_quickmap(expand = 0) +
   labs(title = &quot;SiO3 Surface Distribution&quot;, subtitle = &quot;Depth: 5m  Month: August&quot;, x = &quot;Longitude&quot;, y = &quot;Latitude&quot;, colour = &quot;SiO3 [mmol/m3]&quot;)</code></pre>
-<p><img src="figure/read_model_data.Rmd/Map_surface_SiO3-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="global-section-plot-u-shape" class="section level2">
@@ -1627,29 +1622,20 @@ nc_data_tibble &lt;- nc_data_tibble %&gt;%
   select(-time)
 nc_data_tibble$lon &lt;- round(nc_data_tibble$lon + 0.5) - 0.5
 nc_data_tibble$lat &lt;- round(nc_data_tibble$lat + 0.5) - 0.5
-nc_data_tibble &lt;- inner_join(nc_data_tibble, basinmask_01)
- # filter(!is.na(DIC))</code></pre>
+nc_data_tibble &lt;- inner_join(nc_data_tibble, basinmask_01) 
+#  filter(!is.na(DIC))</code></pre>
 </div>
 <div id="global-section-1" class="section level3">
 <h3><span class="header-section-number">3.2.3</span> Global section</h3>
-<pre class="r"><code>section_global(nc_data_tibble, &quot;DIC&quot;)</code></pre>
-<p><img src="figure/read_model_data.Rmd/Global_section-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>section_global(nc_data_tibble, &quot;ALK&quot;)</code></pre>
-<p><img src="figure/read_model_data.Rmd/Global_section-2.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>section_global(nc_data_tibble, &quot;O2&quot;)</code></pre>
-<p><img src="figure/read_model_data.Rmd/Global_section-3.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>section_global(nc_data_tibble, &quot;AOU&quot;)</code></pre>
-<p><img src="figure/read_model_data.Rmd/Global_section-4.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>section_global(nc_data_tibble, &quot;NO3&quot;)</code></pre>
-<p><img src="figure/read_model_data.Rmd/Global_section-5.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>section_global(nc_data_tibble, &quot;PO4&quot;)</code></pre>
-<p><img src="figure/read_model_data.Rmd/Global_section-6.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>section_global(nc_data_tibble, &quot;SALT&quot;)</code></pre>
-<p><img src="figure/read_model_data.Rmd/Global_section-7.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>section_global(nc_data_tibble, &quot;TEMP&quot;)</code></pre>
-<p><img src="figure/read_model_data.Rmd/Global_section-8.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>section_global(nc_data_tibble, &quot;SiO3&quot;)</code></pre>
-<p><img src="figure/read_model_data.Rmd/Global_section-9.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>section_global(nc_data_tibble, &quot;DIC&quot;)
+section_global(nc_data_tibble, &quot;ALK&quot;)
+section_global(nc_data_tibble, &quot;O2&quot;)
+section_global(nc_data_tibble, &quot;AOU&quot;)
+section_global(nc_data_tibble, &quot;NO3&quot;)
+section_global(nc_data_tibble, &quot;PO4&quot;)
+section_global(nc_data_tibble, &quot;SALT&quot;)
+section_global(nc_data_tibble, &quot;TEMP&quot;)
+section_global(nc_data_tibble, &quot;SiO3&quot;)</code></pre>
 </div>
 </div>
 <div id="zonal-section-plot-for-each-basin-atlantic-indian-pacific" class="section level2">
@@ -1707,7 +1693,6 @@ nc_data_tibble &lt;- inner_join(nc_data_tibble, basinmask_01)
                         &quot;DIC&quot;))
   
 }</code></pre>
-<p><img src="figure/read_model_data.Rmd/Zonal_section_DIC-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/read_model_data.Rmd/Zonal_section_DIC-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/read_model_data.Rmd/Zonal_section_DIC-3.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="zonal-section-plot-for-alk" class="section level3">
 <h3><span class="header-section-number">3.3.3</span> Zonal section plot for ALK</h3>
@@ -1719,7 +1704,6 @@ nc_data_tibble &lt;- inner_join(nc_data_tibble, basinmask_01)
                         &quot;ALK&quot;))
   
 }</code></pre>
-<p><img src="figure/read_model_data.Rmd/Zonal_section_ALK-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/read_model_data.Rmd/Zonal_section_ALK-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/read_model_data.Rmd/Zonal_section_ALK-3.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="zonal-section-plot-for-o2" class="section level3">
 <h3><span class="header-section-number">3.3.4</span> Zonal section plot for O2</h3>
@@ -1731,7 +1715,6 @@ nc_data_tibble &lt;- inner_join(nc_data_tibble, basinmask_01)
                         &quot;O2&quot;))
   
 }</code></pre>
-<p><img src="figure/read_model_data.Rmd/Zonal_section_O2-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/read_model_data.Rmd/Zonal_section_O2-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/read_model_data.Rmd/Zonal_section_O2-3.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="zonal-section-plot-for-aou" class="section level3">
 <h3><span class="header-section-number">3.3.5</span> Zonal section plot for AOU</h3>
@@ -1743,7 +1726,6 @@ nc_data_tibble &lt;- inner_join(nc_data_tibble, basinmask_01)
                         &quot;AOU&quot;))
   
 }</code></pre>
-<p><img src="figure/read_model_data.Rmd/Zonal_section_AOU-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/read_model_data.Rmd/Zonal_section_AOU-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/read_model_data.Rmd/Zonal_section_AOU-3.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="zonal-section-plot-for-no3" class="section level3">
 <h3><span class="header-section-number">3.3.6</span> Zonal section plot for NO3</h3>
@@ -1755,7 +1737,6 @@ nc_data_tibble &lt;- inner_join(nc_data_tibble, basinmask_01)
                         &quot;NO3&quot;))
   
 }</code></pre>
-<p><img src="figure/read_model_data.Rmd/Zonal_section_NO3-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/read_model_data.Rmd/Zonal_section_NO3-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/read_model_data.Rmd/Zonal_section_NO3-3.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="zonal-section-plot-for-po4" class="section level3">
 <h3><span class="header-section-number">3.3.7</span> Zonal section plot for PO4</h3>
@@ -1767,7 +1748,6 @@ nc_data_tibble &lt;- inner_join(nc_data_tibble, basinmask_01)
                         &quot;PO4&quot;))
   
 }</code></pre>
-<p><img src="figure/read_model_data.Rmd/Zonal_section_PO4-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/read_model_data.Rmd/Zonal_section_PO4-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/read_model_data.Rmd/Zonal_section_PO4-3.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="zonal-section-plot-for-salt" class="section level3">
 <h3><span class="header-section-number">3.3.8</span> Zonal section plot for SALT</h3>
@@ -1779,7 +1759,6 @@ nc_data_tibble &lt;- inner_join(nc_data_tibble, basinmask_01)
                         &quot;SALT&quot;))
   
 }</code></pre>
-<p><img src="figure/read_model_data.Rmd/Zonal_section_SALT-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/read_model_data.Rmd/Zonal_section_SALT-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/read_model_data.Rmd/Zonal_section_SALT-3.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="zonal-section-plot-for-temp" class="section level3">
 <h3><span class="header-section-number">3.3.9</span> Zonal section plot for TEMP</h3>
@@ -1791,7 +1770,6 @@ nc_data_tibble &lt;- inner_join(nc_data_tibble, basinmask_01)
                         &quot;TEMP&quot;))
   
 }</code></pre>
-<p><img src="figure/read_model_data.Rmd/Zonal_section_TEMP-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/read_model_data.Rmd/Zonal_section_TEMP-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/read_model_data.Rmd/Zonal_section_TEMP-3.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="zonal-section-plot-for-sio3" class="section level3">
 <h3><span class="header-section-number">3.3.10</span> Zonal section plot for SiO3</h3>
@@ -1803,7 +1781,6 @@ nc_data_tibble &lt;- inner_join(nc_data_tibble, basinmask_01)
                         &quot;SiO3&quot;))
   
 }</code></pre>
-<p><img src="figure/read_model_data.Rmd/Zonal_section_SiO3-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/read_model_data.Rmd/Zonal_section_SiO3-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/read_model_data.Rmd/Zonal_section_SiO3-3.png" width="672" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -1827,29 +1804,29 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] patchwork_1.0.1  PCICt_0.5-4.1    geosphere_1.5-10 tidyselect_1.1.0
- [5] tidync_0.2.4     stars_0.4-3      sf_0.9-6         abind_1.4-5     
- [9] ncdf4_1.17       forcats_0.5.0    stringr_1.4.0    dplyr_1.0.2     
-[13] purrr_0.3.4      readr_1.3.1      tidyr_1.1.2      tibble_3.0.3    
-[17] ggplot2_3.3.2    tidyverse_1.3.0  workflowr_1.6.2 
+ [1] collapse_1.3.2   patchwork_1.0.1  PCICt_0.5-4.1    geosphere_1.5-10
+ [5] tidyselect_1.1.0 tidync_0.2.4     stars_0.4-3      sf_0.9-6        
+ [9] abind_1.4-5      ncdf4_1.17       forcats_0.5.0    stringr_1.4.0   
+[13] dplyr_1.0.2      purrr_0.3.4      readr_1.3.1      tidyr_1.1.2     
+[17] tibble_3.0.3     ggplot2_3.3.2    tidyverse_1.3.0  workflowr_1.6.2 
 
 loaded via a namespace (and not attached):
- [1] httr_1.4.2         viridisLite_0.3.0  jsonlite_1.7.1     here_0.1          
- [5] modelr_0.1.8       assertthat_0.2.1   sp_1.4-2           blob_1.2.1        
- [9] cellranger_1.1.0   yaml_2.2.1         pillar_1.4.6       backports_1.1.10  
-[13] lattice_0.20-41    glue_1.4.2         digest_0.6.25      RColorBrewer_1.1-2
-[17] promises_1.1.1     rvest_0.3.6        colorspace_1.4-1   htmltools_0.5.0   
+ [1] httr_1.4.2         jsonlite_1.7.1     modelr_0.1.8       Formula_1.2-3     
+ [5] assertthat_0.2.1   sp_1.4-2           blob_1.2.1         cellranger_1.1.0  
+ [9] yaml_2.2.1         pillar_1.4.6       backports_1.1.10   lattice_0.20-41   
+[13] glue_1.4.2         digest_0.6.25      promises_1.1.1     rvest_0.3.6       
+[17] sandwich_3.0-0     colorspace_1.4-1   Matrix_1.2-18      htmltools_0.5.0   
 [21] httpuv_1.5.4       pkgconfig_2.0.3    broom_0.7.1        haven_2.3.1       
-[25] scales_1.1.1       whisker_0.4        later_1.1.0.1      git2r_0.27.1      
-[29] farver_2.0.3       generics_0.0.2     ellipsis_0.3.1     withr_2.3.0       
+[25] xtable_1.8-4       scales_1.1.1       whisker_0.4        later_1.1.0.1     
+[29] git2r_0.27.1       generics_0.0.2     ellipsis_0.3.1     withr_2.3.0       
 [33] cli_2.0.2          magrittr_1.5       crayon_1.3.4       readxl_1.3.1      
 [37] evaluate_0.14      fs_1.5.0           fansi_0.4.1        xml2_1.3.2        
 [41] lwgeom_0.2-5       class_7.3-17       tools_4.0.2        hms_0.5.3         
-[45] lifecycle_0.2.0    munsell_0.5.0      reprex_0.3.0       isoband_0.2.2     
+[45] lifecycle_0.2.0    munsell_0.5.0      reprex_0.3.0       lfe_2.8-5.1       
 [49] compiler_4.0.2     e1071_1.7-3        RNetCDF_2.4-2      rlang_0.4.7       
 [53] classInt_0.4-3     units_0.6-7        grid_4.0.2         rstudioapi_0.11   
-[57] labeling_0.3       rmarkdown_2.4      gtable_0.3.0       DBI_1.1.0         
-[61] R6_2.4.1           ncmeta_0.3.0       lubridate_1.7.9    knitr_1.30        
+[57] rmarkdown_2.4      gtable_0.3.0       DBI_1.1.0          R6_2.4.1          
+[61] zoo_1.8-8          ncmeta_0.3.0       lubridate_1.7.9    knitr_1.30        
 [65] rprojroot_1.3-2    KernSmooth_2.23-17 stringi_1.5.3      parallel_4.0.2    
 [69] Rcpp_1.0.5         vctrs_0.3.4        dbplyr_1.4.4       xfun_0.18         </code></pre>
 </div>

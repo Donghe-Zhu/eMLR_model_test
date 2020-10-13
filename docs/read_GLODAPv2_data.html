@@ -411,7 +411,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Read and plot GLODAPv2 data</h1>
 <h4 class="author">Donghe Zhu and Dr Jens Daniel Müller</h4>
-<h4 class="date">12 十月, 2020</h4>
+<h4 class="date">13 十月, 2020</h4>
 
 </div>
 
@@ -436,7 +436,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-10-12
+<strong>Last updated:</strong> 2020-10-13
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -527,16 +527,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttreedae117e8d6b932faab1acfb442d6e91e44f8b357targetblankdae117ea"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/dae117e8d6b932faab1acfb442d6e91e44f8b357" target="_blank">dae117e</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttreeff6699cb8740fcdc6557ac978ef5ae73a5d0c80atargetblankff6699ca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/ff6699cb8740fcdc6557ac978ef5ae73a5d0c80a" target="_blank">ff6699c</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttreedae117e8d6b932faab1acfb442d6e91e44f8b357targetblankdae117ea" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttreeff6699cb8740fcdc6557ac978ef5ae73a5d0c80atargetblankff6699ca" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/dae117e8d6b932faab1acfb442d6e91e44f8b357" target="_blank">dae117e</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/ff6699cb8740fcdc6557ac978ef5ae73a5d0c80a" target="_blank">ff6699c</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -591,6 +591,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/Donghe-Zhu/eMLR_model_test/blob/ff6699cb8740fcdc6557ac978ef5ae73a5d0c80a/analysis/read_GLODAPv2_data.Rmd" target="_blank">ff6699c</a>
+</td>
+<td>
+Donghe_Zhu
+</td>
+<td>
+2020-10-13
+</td>
+<td>
+problem
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/Donghe-Zhu/eMLR_model_test/8edfe6067ab6381d8c5dd630918d554d3ad47872/docs/read_GLODAPv2_data.html" target="_blank">8edfe60</a>
+</td>
+<td>
+Donghe_Zhu
+</td>
+<td>
+2020-10-12
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -684,19 +718,11 @@ nc_data_tibble &lt;- nc_data %&gt;%
   filter(!is.na(DIC))
 
 # convert time to month
+nc_data_tibble &lt;- nc_data_tibble %&gt;%
+  mutate(time = month(time) + 1) %&gt;%
+  mutate(time = if_else(time == 13, 1, time)) %&gt;%
+  rename(month = time)
 
-nc_data_tibble &lt;- nc_data_tibble %&gt;%
-  mutate(time = as.Date.character(time))
-nc_data_tibble &lt;- nc_data_tibble %&gt;%
-  mutate(time = month(time) + 1) %&gt;%
-  mutate(time = if_else(time == 13, 1, time))
-  rename(month = time)
-# or use
-nc_data_tibble &lt;- nc_data_tibble %&gt;%
-  mutate(time = as.POSIXct(time)) %&gt;%
-  mutate(time = month(time) + 1) %&gt;%
-  mutate(time = if_else(time == 13, 1, time))
-  rename(month = time)
   
 nc_data_tibble %&gt;% 
   write_csv(here::here(&quot;data&quot;,
@@ -719,7 +745,7 @@ landmask &lt;-
 # convert time to month
 GLODAP_clean &lt;- GLODAP %&gt;%
   mutate(date = month(date)) %&gt;%
-  rename(month = date)un
+  rename(month = date)
 
 # plot GLODAP sites
 ggplot() + 
