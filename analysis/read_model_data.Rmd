@@ -398,7 +398,9 @@ nc_data_tibble_regrided_surface_Aug %>%
   geom_point(aes(lon, lat, col = ALK)) +
   scale_color_viridis_c() +
   coord_quickmap(expand = 0) +
-  labs(title = "ALK Surface Distribution", subtitle = "Depth: 5m  Month: August", x = "Longitude", y = "Latitude", colour = "ALK")
+  labs(title = "ALK Surface Distribution", subtitle = "Depth: 5m  Month: August", x = "Longitude", y = "Latitude", colour = "ALK") +
+  geom_tile(data = landmask,
+              aes(lon, lat), fill = "grey80")
 
 ```
 
@@ -413,7 +415,9 @@ nc_data_tibble_regrided_surface_Aug %>%
   geom_point(aes(lon, lat, col = O2)) +
   scale_color_viridis_c() +
   coord_quickmap(expand = 0) +
-  labs(title = "O2 Surface Distribution", subtitle = "Depth: 5m  Month: August", x = "Longitude", y = "Latitude", colour = "O2 [mmol/m3]")
+  labs(title = "O2 Surface Distribution", subtitle = "Depth: 5m  Month: August", x = "Longitude", y = "Latitude", colour = "O2 [mmol/m3]") +
+  geom_tile(data = landmask,
+              aes(lon, lat), fill = "grey80")
 
 ```
 
@@ -428,7 +432,9 @@ nc_data_tibble_regrided_surface_Aug %>%
   geom_point(aes(lon, lat, col = AOU)) +
   scale_color_viridis_c() +
   coord_quickmap(expand = 0) +
-  labs(title = "AOU Surface Distribution", subtitle = "Depth: 5m  Month: August", x = "Longitude", y = "Latitude", colour = "AOU [mmol/m3]")
+  labs(title = "AOU Surface Distribution", subtitle = "Depth: 5m  Month: August", x = "Longitude", y = "Latitude", colour = "AOU [mmol/m3]") +
+  geom_tile(data = landmask,
+              aes(lon, lat), fill = "grey80")
 
 ```
 
@@ -443,7 +449,9 @@ nc_data_tibble_regrided_surface_Aug %>%
   geom_point(aes(lon, lat, col = NO3)) +
   scale_color_viridis_c() +
   coord_quickmap(expand = 0) +
-  labs(title = "NO3 Surface Distribution", subtitle = "Depth: 5m  Month: August", x = "Longitude", y = "Latitude", colour = "NO3 [mmol/m3]")
+  labs(title = "NO3 Surface Distribution", subtitle = "Depth: 5m  Month: August", x = "Longitude", y = "Latitude", colour = "NO3 [mmol/m3]") +
+  geom_tile(data = landmask,
+              aes(lon, lat), fill = "grey80")
 
 ```
 
@@ -458,7 +466,9 @@ nc_data_tibble_regrided_surface_Aug %>%
   geom_point(aes(lon, lat, col = PO4)) +
   scale_color_viridis_c() +
   coord_quickmap(expand = 0) +
-  labs(title = "PO4 Surface Distribution", subtitle = "Depth: 5m  Month: August", x = "Longitude", y = "Latitude", colour = "PO4 [mmol/m3]")
+  labs(title = "PO4 Surface Distribution", subtitle = "Depth: 5m  Month: August", x = "Longitude", y = "Latitude", colour = "PO4 [mmol/m3]") +
+  geom_tile(data = landmask,
+              aes(lon, lat), fill = "grey80")
 
 ```
 
@@ -473,7 +483,9 @@ nc_data_tibble_regrided_surface_Aug %>%
   geom_point(aes(lon, lat, col = SALT)) +
   scale_color_viridis_c() +
   coord_quickmap(expand = 0) +
-  labs(title = "SALT Surface Distribution", subtitle = "Depth: 5m  Month: August", x = "Longitude", y = "Latitude", colour = "SALT [g/kg]")
+  labs(title = "SALT Surface Distribution", subtitle = "Depth: 5m  Month: August", x = "Longitude", y = "Latitude", colour = "SALT [g/kg]") +
+  geom_tile(data = landmask,
+              aes(lon, lat), fill = "grey80")
 
 ```
 
@@ -488,7 +500,9 @@ nc_data_tibble_regrided_surface_Aug %>%
   geom_point(aes(lon, lat, col = TEMP)) +
   scale_color_viridis_c() +
   coord_quickmap(expand = 0) +
-  labs(title = "TEMP Surface Distribution", subtitle = "Depth: 5m  Month: August", x = "Longitude", y = "Latitude", colour = "TEMP [℃]")
+  labs(title = "TEMP Surface Distribution", subtitle = "Depth: 5m  Month: August", x = "Longitude", y = "Latitude", colour = "TEMP [℃]") +
+  geom_tile(data = landmask,
+              aes(lon, lat), fill = "grey80")
 
 ```
 
@@ -503,13 +517,34 @@ nc_data_tibble_regrided_surface_Aug %>%
   geom_point(aes(lon, lat, col = SiO3)) +
   scale_color_viridis_c() +
   coord_quickmap(expand = 0) +
-  labs(title = "SiO3 Surface Distribution", subtitle = "Depth: 5m  Month: August", x = "Longitude", y = "Latitude", colour = "SiO3 [mmol/m3]")
+  labs(title = "SiO3 Surface Distribution", subtitle = "Depth: 5m  Month: August", x = "Longitude", y = "Latitude", colour = "SiO3 [mmol/m3]") +
+  geom_tile(data = landmask,
+              aes(lon, lat), fill = "grey80")
 
 ```
 
 SiO3 is super rich in Southern Ocean and coastal region, which indicates active biology production.
 
+
 ## Global section plot (U-shape)
+
+### Modify data
+```{r Modify_data}
+
+rm(nc_data, nc_data_tibble, nc_data_tibble_regrided_surface_Aug)
+basinmask_01 <- 
+  read_csv(here::here("data/World_Ocean_Atlas_2018/_summarized_files",
+                       "basin_mask_WOA18_AIP.csv"))
+basinmask_01 <- basinmask_01 %>%
+  select(-basin)
+
+nc_data_tibble_regrided_annual_average <- nc_data_tibble_regrided %>%
+  group_by(lat, lon, depth) %>%
+  summarise(DIC = mean(DIC), ALK = mean(ALK), O2 = mean(O2), AOU = mean(AOU), NO3 = mean(NO3), PO4 = mean(PO4), SALT = mean(SALT), TEMP = mean(TEMP), SiO3 = mean(SiO3))
+
+nc_data_tibble_regrided_annual_average <- inner_join(nc_data_tibble_regrided_annual_average, basinmask_01) 
+
+```
 
 ### Define section global function
 ```{r define section_global function}
@@ -551,28 +586,10 @@ section_global <- function(df, var) {
 }
 ```
 
-### Modify data
-```{r Modify_data}
-
-rm(nc_data, nc_data_tibble, nc_data_tibble_regrided_surface_Aug)
-basinmask_01 <- 
-  read_csv(here::here("data/World_Ocean_Atlas_2018/_summarized_files",
-                       "basin_mask_WOA18_AIP.csv"))
-basinmask_01 <- basinmask_01 %>%
-  select(-basin)
-
-nc_data_tibble_regrided <- nc_data_tibble_regrided %>%
-  select(-time)
-nc_data_tibble_regrided$lon <- round(nc_data_tibble_regrided$lon + 0.5) - 0.5
-nc_data_tibble_regrided$lat <- round(nc_data_tibble_regrided$lat + 0.5) - 0.5
-nc_data_tibble_regrided <- inner_join(nc_data_tibble_regrided, basinmask_01) 
-
-```
-
 ### Global section
 ```{r Global_section_DIC}
 
-section_global(nc_data_tibble_regrided, "DIC")
+section_global(nc_data_tibble_regrided_annual_average, "DIC")
 
 ```
 
@@ -580,7 +597,7 @@ DIC concentration is directly linked with the age of water, with higher DIC foun
 
 ```{r Global_section_ALK}
 
-section_global(nc_data_tibble_regrided, "ALK")
+section_global(nc_data_tibble_regrided_annual_average, "ALK")
 
 ```
 
@@ -588,7 +605,7 @@ Apart from deep Pacific, we found really high ALK signal in Atlantic Ocean subtr
 
 ```{r Global_section_O2}
 
-section_global(nc_data_tibble_regrided, "O2")
+section_global(nc_data_tibble_regrided_annual_average, "O2")
 
 ```
 
@@ -596,7 +613,7 @@ For ocean surface, we found high O2 in high latitude (low T, high solubility). T
 
 ```{r Global_section_AOU}
 
-section_global(nc_data_tibble_regrided, "AOU")
+section_global(nc_data_tibble_regrided_annual_average, "AOU")
 
 ```
 
@@ -604,7 +621,7 @@ The AOU pattern is mostly opposite to the O2 pattern, with two hotspots at aroun
 
 ```{r Global_section_NO3}
 
-section_global(nc_data_tibble_regrided, "NO3")
+section_global(nc_data_tibble_regrided_annual_average, "NO3")
 
 ```
 
@@ -612,7 +629,7 @@ section_global(nc_data_tibble_regrided, "NO3")
 
 ```{r Global_section_PO4}
 
-section_global(nc_data_tibble_regrided, "PO4")
+section_global(nc_data_tibble_regrided_annual_average, "PO4")
 
 ```
 
@@ -620,7 +637,7 @@ section_global(nc_data_tibble_regrided, "PO4")
 
 ```{r Global_section_SALT}
 
-section_global(nc_data_tibble_regrided, "SALT")
+section_global(nc_data_tibble_regrided_annual_average, "SALT")
 
 ```
 
@@ -628,7 +645,7 @@ section_global(nc_data_tibble_regrided, "SALT")
 
 ```{r Global_section_TEMP}
 
-section_global(nc_data_tibble_regrided, "TEMP")
+section_global(nc_data_tibble_regrided_annual_average, "TEMP")
 
 ```
 
@@ -636,7 +653,7 @@ section_global(nc_data_tibble_regrided, "TEMP")
 
 ```{r Global_section_SiO3}
 
-section_global(nc_data_tibble_regrided, "SiO3")
+section_global(nc_data_tibble_regrided_annual_average, "SiO3")
 
 ```
 
@@ -652,13 +669,15 @@ section_zonal <- function(df, i_basin_AIP, var) {
   var <- sym(var)
 
   df_sub <- df %>% 
-    filter(basin_AIP == i_basin_AIP)
+    filter(basin_AIP == i_basin_AIP) %>%
+    group_by(lat, depth) %>%
+    summarise(zonal_mean = mean(!!var))
   
   lat_max <- max(df_sub$lat)
   lat_min <- min(df_sub$lat)
 
   surface <- df_sub %>%
-    ggplot(aes(lat, depth, z = !!var)) +
+    ggplot(aes(lat, depth, z = zonal_mean)) +
     geom_contour_filled(breaks = breaks) +
     scale_fill_viridis_d(name = name_var) +
     coord_cartesian(expand = 0,
@@ -670,10 +689,10 @@ section_zonal <- function(df, i_basin_AIP, var) {
           axis.ticks.x = element_blank(),
     ) +
     labs(y = "Depth (m)",
-         title = paste("Basin:", i_basin_AIP))
+         title = paste("Basin:", i_basin_AIP, "| Zonal Annual Average"))
 
   deep <- df_sub %>%
-    ggplot(aes(lat, depth, z = !!var)) +
+    ggplot(aes(lat, depth, z = zonal_mean)) +
     geom_contour_filled(breaks = breaks) +
     scale_fill_viridis_d(name = name_var) +
     scale_y_reverse() +
@@ -692,10 +711,10 @@ section_zonal <- function(df, i_basin_AIP, var) {
 ### Zonal section plot for DIC
 ```{r Zonal_section_DIC}
 
-for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
+for (i_basin_AIP in unique(nc_data_tibble_regrided_annual_average$basin_AIP)) {
     
-    breaks <- c(seq(2000, 2400, 40), Inf)
-    print(section_zonal(nc_data_tibble_regrided,
+    breaks <- c(seq(1960, 2400, 40), Inf)
+    print(section_zonal(nc_data_tibble_regrided_annual_average,
                         i_basin_AIP = i_basin_AIP,
                         "DIC"))
   
@@ -706,10 +725,10 @@ for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
 ### Zonal section plot for ALK
 ```{r Zonal_section_ALK}
 
-for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
+for (i_basin_AIP in unique(nc_data_tibble_regrided_annual_average$basin_AIP)) {
     
-    breaks <- c(seq(2000, 2600, 50), Inf)
-    print(section_zonal(nc_data_tibble_regrided,
+    breaks <- c(seq(2130, 2550, 30), Inf)
+    print(section_zonal(nc_data_tibble_regrided_annual_average,
                         i_basin_AIP = i_basin_AIP,
                         "ALK"))
   
@@ -720,10 +739,10 @@ for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
 ### Zonal section plot for O2
 ```{r Zonal_section_O2}
 
-for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
+for (i_basin_AIP in unique(nc_data_tibble_regrided_annual_average$basin_AIP)) {
     
-    breaks <- c(seq(0, 500, 50), Inf)
-    print(section_zonal(nc_data_tibble_regrided,
+    breaks <- c(seq(0, 400, 40), Inf)
+    print(section_zonal(nc_data_tibble_regrided_annual_average,
                         i_basin_AIP = i_basin_AIP,
                         "O2"))
   
@@ -734,10 +753,10 @@ for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
 ### Zonal section plot for AOU
 ```{r Zonal_section_AOU}
 
-for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
+for (i_basin_AIP in unique(nc_data_tibble_regrided_annual_average$basin_AIP)) {
     
     breaks <- c(seq(-50, 350, 40), Inf)
-    print(section_zonal(nc_data_tibble_regrided,
+    print(section_zonal(nc_data_tibble_regrided_annual_average,
                         i_basin_AIP = i_basin_AIP,
                         "AOU"))
   
@@ -748,10 +767,10 @@ for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
 ### Zonal section plot for NO3
 ```{r Zonal_section_NO3}
 
-for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
+for (i_basin_AIP in unique(nc_data_tibble_regrided_annual_average$basin_AIP)) {
     
     breaks <- c(seq(0, 45, 5), Inf)
-    print(section_zonal(nc_data_tibble_regrided,
+    print(section_zonal(nc_data_tibble_regrided_annual_average,
                         i_basin_AIP = i_basin_AIP,
                         "NO3"))
   
@@ -762,10 +781,10 @@ for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
 ### Zonal section plot for PO4
 ```{r Zonal_section_PO4}
 
-for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
+for (i_basin_AIP in unique(nc_data_tibble_regrided_annual_average$basin_AIP)) {
     
     breaks <- c(seq(0, 3.2, 0.4), Inf)
-    print(section_zonal(nc_data_tibble_regrided,
+    print(section_zonal(nc_data_tibble_regrided_annual_average,
                         i_basin_AIP = i_basin_AIP,
                         "PO4"))
   
@@ -776,10 +795,10 @@ for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
 ### Zonal section plot for SALT
 ```{r Zonal_section_SALT}
 
-for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
+for (i_basin_AIP in unique(nc_data_tibble_regrided_annual_average$basin_AIP)) {
     
-    breaks <- c(seq(32, 40, 1), Inf)
-    print(section_zonal(nc_data_tibble_regrided,
+    breaks <- c(seq(32, 40, 0.5), Inf)
+    print(section_zonal(nc_data_tibble_regrided_annual_average,
                         i_basin_AIP = i_basin_AIP,
                         "SALT"))
   
@@ -790,10 +809,10 @@ for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
 ### Zonal section plot for TEMP
 ```{r Zonal_section_TEMP}
 
-for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
+for (i_basin_AIP in unique(nc_data_tibble_regrided_annual_average$basin_AIP)) {
     
-    breaks <- c(seq(-3, 33, 4), Inf)
-    print(section_zonal(nc_data_tibble_regrided,
+    breaks <- c(seq(-3, 30, 3), Inf)
+    print(section_zonal(nc_data_tibble_regrided_annual_average,
                         i_basin_AIP = i_basin_AIP,
                         "TEMP"))
   
@@ -804,10 +823,10 @@ for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
 ### Zonal section plot for SiO3
 ```{r Zonal_section_SiO3}
 
-for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
+for (i_basin_AIP in unique(nc_data_tibble_regrided_annual_average$basin_AIP)) {
     
-    breaks <- c(seq(-20, 100, 10), Inf)
-    print(section_zonal(nc_data_tibble_regrided,
+    breaks <- c(seq(0, 120, 10), Inf)
+    print(section_zonal(nc_data_tibble_regrided_annual_average,
                         i_basin_AIP = i_basin_AIP,
                         "SiO3"))
   
