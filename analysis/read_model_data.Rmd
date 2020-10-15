@@ -569,7 +569,6 @@ nc_data_tibble_regrided <- inner_join(nc_data_tibble_regrided, basinmask_01)
 
 ```
 
-
 ### Global section
 ```{r Global_section_DIC}
 
