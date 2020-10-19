@@ -12,9 +12,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-
 ```{r global_options, include = FALSE}
-# Some basic settings to improve the html output
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
@@ -310,64 +308,90 @@ We produced following plots for those variables:
 ## Global surface distribution
 
 ### Read netcdf
+
 ```{r read_file_and_regrid_data}
 
-vars <- 
-  c("DIC","ALK","O2","AOU","NO3","PO4","SALT","TEMP","SiO3")
 
-for(i_var in vars) { 
+vars <-
+  c("DIC", "ALK", "O2", "AOU", "NO3", "PO4", "SALT", "TEMP", "SiO3")
+
+for (i_var in vars) {
+  
+  #i_var <- vars[1]
+  print(i_var)
   
   nc_data <- read_ncdf(here::here("data",
-                                "GIAF_JRA.pop.h.0354.nc"),
-                     var = i_var)
+                                  "GIAF_JRA.pop.h.0354.nc"),
+                       var = i_var)
   
-# convert to tibble and regrid to 1° x 1°
+  # convert to tibble and regrid to 1° x 1°
   nc_data_tibble <- nc_data %>%
-    as.tibble() %>%
-    mutate(nlon = if_else(nlon < 20, nlon + 360, nlon)) %>%
+    as_tibble()
+  
+  time_June <- sort(unique(nc_data_tibble$time))[6]
+  
+  # filter August data
+  nc_data_tibble <- nc_data_tibble %>%
+    filter(time == time_June) %>%
+    select(-time)
+  
+  # convert longitudes
+  nc_data_tibble <- nc_data_tibble %>%
+    mutate(nlon = if_else(nlon < 20, nlon + 360, nlon))
+  
+  # bin coordinates
+  
+  nc_data_tibble <- nc_data_tibble %>%
     rename(lon = nlon, lat = nlat, depth = z_t) %>%
-    mutate(lat = cut(lat, seq(-90, 90, 1), seq(-89.5, 89.5, 1)),
-           lat = as.numeric(as.character(lat)),
-           lon = cut(lon, seq(20, 380, 1), seq(20.5, 379.5, 1)),
-           lon = as.numeric(as.character(lon))) %>%
+    mutate(
+      lat = cut(lat, seq(-90, 90, 1), seq(-89.5, 89.5, 1)),
+      lat = as.numeric(as.character(lat)),
+      lon = cut(lon, seq(20, 380, 1), seq(20.5, 379.5, 1)),
+      lon = as.numeric(as.character(lon))
+    ) %>%
     mutate(depth = depth / 100)
   
-# convert to numeric
-  nc_data_tibble <- nc_data_tibble %>%
-    filter(!is.na(!!sym(i_var)))
-
-# average for the same 4D values
-  nc_data_tibble <- nc_data_tibble %>%
-    fgroup_by(lon, lat, depth, time) %>% {
-     add_vars(fgroup_vars(.,"unique"),
-              fmean(., keep.group_vars = FALSE))
+  
+  # average for the same 4D values
+  nc_data_tibble_grid <- nc_data_tibble %>%
+    fgroup_by(lon, lat, depth) %>% {
+      add_vars(fgroup_vars(., "unique"),
+               fmean(., keep.group_vars = FALSE))
     }
-
+  
+  
+  # convert to numeric
+  nc_data_tibble_grid <- nc_data_tibble_grid %>%
+    filter(!is.na(!!sym(i_var)))
+  
   if (exists("nc_data_tibble_regrided")) {
-    nc_data_tibble_regrided = full_join(nc_data_tibble_regrided, nc_data_tibble)
+    nc_data_tibble_regrided = full_join(nc_data_tibble_regrided, nc_data_tibble_grid)
   }
   
   if (!exists("nc_data_tibble_regrided")) {
-    nc_data_tibble_regrided <- nc_data_tibble 
+    nc_data_tibble_regrided <- nc_data_tibble_grid
   }
-
+  
 }
 
+rm(nc_data_tibble_grid)
+
 nc_data_tibble_regrided <- nc_data_tibble_regrided %>%
-  mutate(DIC = as.numeric(DIC)) %>%
-  mutate(ALK = as.numeric(ALK)) %>%
-  mutate(O2 = as.numeric(O2)) %>%
-  mutate(AOU = as.numeric(AOU)) %>%
-  mutate(NO3 = as.numeric(NO3)) %>%
-  mutate(PO4 = as.numeric(PO4)) %>%
-  mutate(SALT = as.numeric(SALT)) %>%
-  mutate(TEMP = as.numeric(TEMP)) %>%
-  mutate(SiO3 = as.numeric(SiO3))
+  mutate(
+    DIC = as.numeric(DIC),
+    ALK = as.numeric(ALK),
+    O2 = as.numeric(O2),
+    AOU = as.numeric(AOU),
+    NO3 = as.numeric(NO3),
+    PO4 = as.numeric(PO4),
+    SALT = as.numeric(SALT),
+    TEMP = as.numeric(TEMP),
+    SiO3 = as.numeric(SiO3)
+  )
 
 # filter surface and August data
 nc_data_tibble_regrided_surface_Aug <- nc_data_tibble_regrided %>%
-  filter(depth == 5) %>%
-  filter(time == as.PCICt("0355-07-30", cal = "365_day")) 
+  filter(depth == 5)
 
 ```
 
@@ -377,8 +401,8 @@ nc_data_tibble_regrided_surface_Aug <- nc_data_tibble_regrided %>%
 nc_data_tibble_regrided_surface_Aug %>%
   filter(DIC > 1800) %>%
   ggplot() +
-  geom_point(aes(lon, lat, col = DIC)) +
-  scale_color_viridis_c() +
+  geom_raster(aes(lon, lat, fill = DIC)) +
+  scale_fill_viridis_c() +
   coord_quickmap(expand = 0) +
   labs(title = "DIC Surface Distribution", subtitle = "Depth: 5m  Month: August", x = "Longitude", y = "Latitude", colour = "DIC [mmol/m3]") +
   geom_tile(data = landmask,
@@ -531,16 +555,14 @@ SiO3 is super rich in Southern Ocean and coastal region, which indicates active 
 ### Modify data
 ```{r Modify_data}
 
-rm(nc_data, nc_data_tibble, nc_data_tibble_regrided_surface_Aug)
+rm(nc_data, nc_data_tibble)
 basinmask_01 <- 
   read_csv(here::here("data/World_Ocean_Atlas_2018/_summarized_files",
                        "basin_mask_WOA18_AIP.csv"))
 basinmask_01 <- basinmask_01 %>%
   select(-basin)
 
-nc_data_tibble_regrided_annual_average <- nc_data_tibble_regrided %>%
-  group_by(lat, lon, depth) %>%
-  summarise(DIC = mean(DIC), ALK = mean(ALK), O2 = mean(O2), AOU = mean(AOU), NO3 = mean(NO3), PO4 = mean(PO4), SALT = mean(SALT), TEMP = mean(TEMP), SiO3 = mean(SiO3))
+nc_data_tibble_regrided_annual_average <- nc_data_tibble_regrided
 
 nc_data_tibble_regrided_annual_average <- inner_join(nc_data_tibble_regrided_annual_average, basinmask_01) 
 
