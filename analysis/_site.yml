@@ -7,6 +7,8 @@ navbar:
     href: index.html
   - text: Read model data
     href: read_model_data.html
+  - text: Read GLODAPv2 data
+    href: read_GLODAPv2_data.html
   right:
   - icon: fa-github
     text: Source code
