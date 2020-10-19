@@ -119,7 +119,7 @@ wflow_publish(here::here(
   "analysis",
   c(
     "index.Rmd",
-    "read_model_data.Rmd",
+    "read_model_data.Rmd"
   )
 ),
 message = "XXX",

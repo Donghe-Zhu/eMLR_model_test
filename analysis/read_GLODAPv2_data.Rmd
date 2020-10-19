@@ -49,7 +49,7 @@ nc_data <- read_ncdf(here::here("data",
 
 # convert to tibble
 nc_data_tibble <- nc_data %>%
-  as.tibble() %>%
+  as_tibble() %>%
   mutate(nlon = if_else(nlon < 20, nlon + 360, nlon)) %>%
   mutate(z_t = z_t / 100) %>%
   rename(lon = nlon, lat = nlat, depth = z_t) %>%
