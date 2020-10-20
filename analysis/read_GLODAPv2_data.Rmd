@@ -18,9 +18,7 @@ editor_options:
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
-
 # Required Packages
-
 ```{r Load_package}
 library(tidyverse) # the tidverse combines several packages
 library(ncdf4)
@@ -30,6 +28,7 @@ library(tidyselect)
 library(geosphere)
 library(PCICt)
 library(lubridate)
+library(collapse)
 ```
 
 
@@ -38,86 +37,52 @@ library(lubridate)
 theme_set(theme_bw())
 ```
 
-# The problem I encounter here is that I want to extract the month from model data. First, I convert from Pcict to Date form, but the process takes hours and I don't know why.
-# Read and preprocess data from netcdf file
-```{r read_file_and_extract_data, eval=FALSE}
+# Read and preprocess data from model  netcdf file
+```{r read_file_and_regrid_data}
 
-# read DIC from netcdf file
-nc_data <- read_ncdf(here::here("data",
-                                "GIAF_JRA.pop.h.0354.nc"),
-                     var = "DIC")
+vars <- 
+  c("DIC","ALK","O2","AOU","NO3","PO4","SALT","TEMP","SiO3")
 
-# convert to tibble
-nc_data_tibble <- nc_data %>%
-  as_tibble() %>%
-  mutate(nlon = if_else(nlon < 20, nlon + 360, nlon)) %>%
-  mutate(z_t = z_t / 100) %>%
-  rename(lon = nlon, lat = nlat, depth = z_t) %>%
-  mutate(DIC = as.numeric(DIC)) %>%
-  filter(!is.na(DIC))
-
-# convert time to month
-nc_data_tibble <- nc_data_tibble %>%
-  mutate(time = month(time) + 1) %>%
-  mutate(time = if_else(time == 13, 1, time)) %>%
-  rename(month = time)
-
+for(i_var in vars) { 
   
-nc_data_tibble %>% 
-  write_csv(here::here("data",
-                       "GIAF_JRA.pop.h.0354_as_date.nc"))
-
-```
-
-# Read data from netcdf and csv file
-```{r Read_file_and_extract_data, eval=FALSE}
-# read csv file
-GLODAP <-
-  read_csv(
-    here::here(
-      "data",
-      "GLODAPv2.2020_clean_2007.csv"
-    ))
-
-landmask <- 
-  read_csv(here::here("data/World_Ocean_Atlas_2018/_summarized_files",
-                       "land_mask_WOA18.csv"))
-
-# convert time to month
-GLODAP_clean <- GLODAP %>%
-  mutate(date = month(date)) %>%
-  rename(month = date)
-
-# plot GLODAP sites
-ggplot() + 
-  geom_raster(data = landmask,
-              aes(lon, lat), fill = "grey80") +
-  geom_point(data = GLODAP_clean,
-             aes(lon, lat)) 
-
-```
-
-# Besides, for subseting the model data with observations based on near lat, lon, depth and month. I wonder if you have some code or references, I find it kind of difficult to make it by myself.
-
-
-# This part is the problem I encounter in read_model_data.RMD and I just copy here. When I extract all the interested data from the file and filter the NaN value, I always encounter a erre r: Error: vector memory exhausted (limit reached?). I wonder how could I avoid it.
-
-### Read netcdf
-```{r read_file, eval=FALSE}
-# read one variable from file
-nc_data <- read_ncdf(here::here("data",
+  nc_data <- read_ncdf(here::here("data",
                                 "GIAF_JRA.pop.h.0354.nc"),
-                     var = c("DIC", "ALK", "O2", "AOU", "NO3", "PO4", "SALT", "TEMP", "SiO3"))
+                     var = i_var)
+  
+ # convert to tibble and regrid to 1° x 1°
+  nc_data_tibble <- nc_data %>%
+    as.tibble() %>%
+    mutate(nlon = if_else(nlon < 20, nlon + 360, nlon)) %>%
+    rename(lon = nlon, lat = nlat, depth = z_t) %>%
+    mutate(lat = cut(lat, seq(-90, 90, 1), seq(-89.5, 89.5, 1)),
+           lat = as.numeric(as.character(lat)),
+           lon = cut(lon, seq(20, 380, 1), seq(20.5, 379.5, 1)),
+           lon = as.numeric(as.character(lon))) %>%
+    mutate(depth = depth / 100)
+  
+ # filter NaN value
+  nc_data_tibble <- nc_data_tibble %>%
+    filter(!is.na(!!sym(i_var)))
 
-# convert to tibble
-nc_data_tibble <- nc_data %>%
-  as.tibble() %>%
-  mutate(nlon = if_else(nlon < 20, nlon + 360, nlon)) %>%
-  mutate(z_t = z_t / 100) %>%
-  rename(lon = nlon, lat = nlat, depth = z_t)
+ # average for the same 4D values
+  nc_data_tibble <- nc_data_tibble %>%
+    fgroup_by(lon, lat, depth, time) %>% {
+     add_vars(fgroup_vars(.,"unique"),
+              fmean(., keep.group_vars = FALSE))
+    }
+
+  if (exists("nc_data_tibble_regrided")) {
+    nc_data_tibble_regrided = full_join(nc_data_tibble_regrided, nc_data_tibble)
+  }
+  
+  if (!exists("nc_data_tibble_regrided")) {
+    nc_data_tibble_regrided <- nc_data_tibble 
+  }
+
+}
 
 # convert as numeric
-nc_data_tibble <- nc_data_tibble %>%
+nc_data_tibble_regrided <- nc_data_tibble_regrided %>%
   mutate(DIC = as.numeric(DIC)) %>%
   mutate(ALK = as.numeric(ALK)) %>%
   mutate(O2 = as.numeric(O2)) %>%
@@ -128,16 +93,82 @@ nc_data_tibble <- nc_data_tibble %>%
   mutate(TEMP = as.numeric(TEMP)) %>%
   mutate(SiO3 = as.numeric(SiO3))
 
-# filter NaN values
-nc_data_tibble <- nc_data_tibble %>%
-  filter(!is.na(DIC))
+# convert time to month
+nc_data_tibble_regrided <- nc_data_tibble_regrided %>%
+  mutate(time = month(time) + 1) %>%
+  mutate(time = if_else(time == 13, 1, time)) %>%
+  rename(month = time)
 
-# filter surface data
-nc_data_tibble_surface <- nc_data_tibble %>%
-  filter(depth == 5)
+```
 
-# filter August data
-nc_data_tibble_surface_Aug <- nc_data_tibble_surface %>%
-  filter(time == as.PCICt("0355-07-30", cal = "365_day")) 
+# Read GLODAP data from csv file
+```{r read_file_and_extract_data}
+
+# read csv file
+GLODAP <-
+  read_csv(
+    here::here(
+      "data",
+      "GLODAPv2.2020_clean_2007.csv"
+    ))
+
+# convert time to month
+GLODAP_clean <- GLODAP %>%
+  mutate(date = month(date)) %>%
+  rename(month = date)
+
+# set depth range
+depth_model <- unique(nc_data_tibble_regrided$depth)
+range_temp <- 1:(length(depth_model) - 1)
+for (i in 1:(length(depth_model) - 1))  {
+  range_temp[i] <- (depth_model[i] + depth_model[i + 1]) / 2
+}
+  range <- c(0)
+  range <- append(range, range_temp) 
+  range <- append(range, Inf)
+  print(range)
+
+# convert observational depth to 60 model depth
+GLODAP_clean <- GLODAP_clean %>%
+  mutate(depth = cut(depth, range, depth_model), depth = as.numeric(as.character(depth)))
+
+# select model data where there is a corresponding observational data
+joint_obs_model <- left_join(GLODAP_clean, nc_data_tibble_regrided) %>%
+  arrange(lon, lat, month, depth) %>%
+  select(lon, lat, month, depth, tem, TEMP, sal, SALT, tco2, DIC, talk, ALK, nitrate, NO3, phosphate, PO4, silicate, SiO3, oxygen, O2, aou, AOU)
+
+```
+
+# Plot joint obs vs model
+```{r plot_joint_obs_model}
+
+# read in landmask file
+landmask <- 
+  read_csv(here::here("data/World_Ocean_Atlas_2018/_summarized_files",
+                       "land_mask_WOA18.csv"))
+
+# plot GLODAP observation and model data
+DIC_surface_Aug <- nc_data_tibble_regrided %>%
+  filter(depth == 5, month == 8)
+
+ggplot() + 
+  geom_raster(data = nc_data_tibble_regrided,
+             aes(lon, lat, fill = DIC)) +
+  scale_fill_viridis_c() +
+  coord_quickmap(expand = 0) +
+  geom_point(data = GLODAP_clean,
+             aes(lon, lat)) +
+  geom_raster(data = landmask,
+              aes(lon, lat), fill = "grey80") +
+  labs(title = "Observation and Model Data Distribution", subtitle = "Depth: 5m | Month: August", x = "Longitude", y = "Latitude", colour = "DIC [mmol/m3]") 
+
+joint_obs_model %>%
+  filter(is.na(DIC)) %>%
+  ggplot +
+  geom_point(aes(lon, lat)) +
+  scale_color_viridis_c() +
+  coord_quickmap(expand = 0) +
+  geom_raster(data = landmask,
+              aes(lon, lat), fill = "grey80")
 
 ```
