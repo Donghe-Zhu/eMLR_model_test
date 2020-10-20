@@ -1,0 +1,212 @@
+---
+title: "Read model data"
+author: "Donghe Zhu and Dr Jens Daniel Müller"
+date:  "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  workflowr::wflow_html:
+    number_sections: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+editor_options:
+  chunk_output_type: console
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+```{r library, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(stars)
+library(collapse)
+```
+
+```{r read_mask_files, include = FALSE}
+
+basinmask <- read_csv(
+  here::here(
+    "data/World_Ocean_Atlas_2018/_summarized_files",
+    "basin_mask_WOA18_AIP.csv"
+  )
+)
+basinmask <- basinmask %>%
+  select(-basin)
+
+```
+
+```{r ggplot_theme, include = FALSE}
+# ggplot theme for all plots
+theme_set(theme_bw())
+```
+
+# Read variable forcing model in August
+
+```{r read_variable_model_and_regrid_Aug}
+
+vars <-
+  c("DIC", "ALK", "O2", "AOU", "NO3", "PO4", "SALT", "TEMP", "SiO3")
+
+for (i_var in vars) {
+  
+  nc_data <- read_ncdf(here::here("data",
+                                  "GIAF_JRA.pop.h.0354.nc"),
+                       var = i_var)
+  
+  # convert to tibble
+  nc_data_tibble <- nc_data %>%
+    as_tibble()
+  
+  # filter August data
+  time_Aug <- sort(unique(nc_data_tibble$time))[8]
+  nc_data_tibble <- nc_data_tibble %>%
+    filter(time == time_Aug) %>%
+    select(-time)
+  
+  # convert longitudes
+  nc_data_tibble <- nc_data_tibble %>%
+    mutate(nlon = if_else(nlon < 20, nlon + 360, nlon))
+  
+  # bin coordinates
+  nc_data_tibble <- nc_data_tibble %>%
+    rename(lon = nlon, lat = nlat, depth = z_t) %>%
+    mutate(
+      lat = cut(lat, seq(-90, 90, 1), seq(-89.5, 89.5, 1)),
+      lat = as.numeric(as.character(lat)),
+      lon = cut(lon, seq(20, 380, 1), seq(20.5, 379.5, 1)),
+      lon = as.numeric(as.character(lon))
+    ) %>%
+    mutate(depth = depth / 100)
+  
+  # average for the same 4D values
+  nc_data_tibble_grid <- nc_data_tibble %>%
+    fgroup_by(lon, lat, depth) %>% {
+      add_vars(fgroup_vars(., "unique"),
+               fmean(., keep.group_vars = FALSE))
+    }
+  
+  # filter NaN value
+  nc_data_tibble_grid <- nc_data_tibble_grid %>%
+    filter(!is.na(!!sym(i_var)))
+
+  # join tibbles
+  if (exists("nc_data_tibble_regrided")) {
+    nc_data_tibble_regrided = full_join(nc_data_tibble_regrided, nc_data_tibble_grid)
+  }
+  
+  if (!exists("nc_data_tibble_regrided")) {
+    nc_data_tibble_regrided <- nc_data_tibble_grid
+  }
+  
+}
+
+# convert to numeric
+nc_data_tibble_regrided <- nc_data_tibble_regrided %>%
+  mutate(
+    DIC = as.numeric(DIC),
+    ALK = as.numeric(ALK),
+    O2 = as.numeric(O2),
+    AOU = as.numeric(AOU),
+    NO3 = as.numeric(NO3),
+    PO4 = as.numeric(PO4),
+    SALT = as.numeric(SALT),
+    TEMP = as.numeric(TEMP),
+    SiO3 = as.numeric(SiO3)
+  )
+
+# select data included in basinmask
+nc_data_tibble_regrided <- inner_join(nc_data_tibble_regrided, basinmask) 
+
+# write file
+nc_data_tibble_regrided %>%
+  write_csv(here::here("data",
+                       "variable_regrided_Aug.csv"))
+
+rm(nc_data, nc_data_tibble, nc_data_tibble_grid, nc_data_tibble_regrided)
+```
+
+# Read normal forcing model in August
+
+```{r read_normal_model_and_regrid_Aug}
+
+vars <-
+  c("DIC", "ALK", "O2", "AOU", "NO3", "PO4", "SALT", "TEMP", "SiO3")
+
+for (i_var in vars) {
+  
+  nc_data <- read_ncdf(here::here("data",
+                                  "GECO_NYF_cstCO2.pop.h.0354-01.nc"),
+                       var = i_var)
+  
+  # convert to tibble
+  nc_data_tibble <- nc_data %>%
+    as_tibble()
+  
+  # filter August data
+  time_Aug <- sort(unique(nc_data_tibble$time))[8]
+  nc_data_tibble <- nc_data_tibble %>%
+    filter(time == time_Aug) %>%
+    select(-time)
+  
+  # convert longitudes
+  nc_data_tibble <- nc_data_tibble %>%
+    mutate(nlon = if_else(nlon < 20, nlon + 360, nlon))
+  
+  # bin coordinates
+  nc_data_tibble <- nc_data_tibble %>%
+    rename(lon = nlon, lat = nlat, depth = z_t) %>%
+    mutate(
+      lat = cut(lat, seq(-90, 90, 1), seq(-89.5, 89.5, 1)),
+      lat = as.numeric(as.character(lat)),
+      lon = cut(lon, seq(20, 380, 1), seq(20.5, 379.5, 1)),
+      lon = as.numeric(as.character(lon))
+    ) %>%
+    mutate(depth = depth / 100)
+  
+  # average for the same 4D values
+  nc_data_tibble_grid <- nc_data_tibble %>%
+    fgroup_by(lon, lat, depth) %>% {
+      add_vars(fgroup_vars(., "unique"),
+               fmean(., keep.group_vars = FALSE))
+    }
+  
+  # filter NaN value
+  nc_data_tibble_grid <- nc_data_tibble_grid %>%
+    filter(!is.na(!!sym(i_var)))
+
+  # join tibbles
+  if (exists("nc_data_tibble_regrided")) {
+    nc_data_tibble_regrided = full_join(nc_data_tibble_regrided, nc_data_tibble_grid)
+  }
+  
+  if (!exists("nc_data_tibble_regrided")) {
+    nc_data_tibble_regrided <- nc_data_tibble_grid
+  }
+  
+}
+
+# convert to numeric
+nc_data_tibble_regrided <- nc_data_tibble_regrided %>%
+  mutate(
+    DIC = as.numeric(DIC),
+    ALK = as.numeric(ALK),
+    O2 = as.numeric(O2),
+    AOU = as.numeric(AOU),
+    NO3 = as.numeric(NO3),
+    PO4 = as.numeric(PO4),
+    SALT = as.numeric(SALT),
+    TEMP = as.numeric(TEMP),
+    SiO3 = as.numeric(SiO3)
+  )
+
+# select data included in basinmask
+nc_data_tibble_regrided <- inner_join(nc_data_tibble_regrided, basinmask) 
+
+# write file
+nc_data_tibble_regrided %>%
+  write_csv(here::here("data",
+                       "normal_regrided_Aug.csv"))
+
+rm(nc_data, nc_data_tibble, nc_data_tibble_grid, nc_data_tibble_regrided)
+
+```

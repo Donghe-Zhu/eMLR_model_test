@@ -1,0 +1,145 @@
+---
+title: "Calculate Cant based on two models"
+author: "Donghe Zhu and Dr Jens Daniel Müller"
+date:  "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  workflowr::wflow_html:
+    number_sections: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+editor_options:
+  chunk_output_type: console
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+
+```{r library, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(patchwork)
+```
+
+```{r read_parameters, include = FALSE}
+parameters <-
+  read_rds(here::here("data",
+                       "parameters.rds"))
+```
+
+```{r read_mask_files, include = FALSE}
+
+basinmask <- read_csv(
+  here::here(
+    "data/World_Ocean_Atlas_2018/_summarized_files",
+    "basin_mask_WOA18_AIP.csv"
+  )
+)
+basinmask <- basinmask %>%
+  select(-basin)
+
+landmask <-  read_csv(
+  here::here(
+    "data/World_Ocean_Atlas_2018/_summarized_files",
+    "land_mask_WOA18.csv"
+  )
+)
+
+```
+
+```{r read_section_global_coordinates, include = FALSE}
+
+section_global_coordinates <- read_csv(
+  here::here(
+    "data/World_Ocean_Atlas_2018/_summarized_files",
+    "section_global_coordinates.csv"
+  )
+)
+
+```
+
+```{r read_functions, include = FALSE}
+source(here::here("code", "plotting_functions.R"))
+```
+
+```{r ggplot_theme, include = FALSE}
+# ggplot theme for all plots
+theme_set(theme_bw())
+```
+
+# Read csv files
+
+```{r read_csv_files_and_select_data, include = FALSE}
+
+# read variable forcing model in August
+variable_regrided_Aug <-  read_csv(
+  here::here(
+    "data",
+    "variable_regrided_Aug.csv"
+  )
+)
+
+DIC_variable <- variable_regrided_Aug %>%
+  select(lon, lat, depth, DIC) %>%
+  rename(DIC_variable = DIC)
+
+# read normal forcing model in August
+normal_regrided_Aug <-  read_csv(
+  here::here(
+    "data",
+    "normal_regrided_Aug.csv"
+  )
+)
+
+DIC_normal <- normal_regrided_Aug %>%
+  select(lon, lat, depth, DIC) %>%
+  rename(DIC_normal = DIC)
+
+```
+
+# Global distribution of Cant in August 2007
+
+```{r Calculate_global_distribution_of_Cant}
+
+# calculate Cant in 2007
+DIC_models <- inner_join(DIC_normal, DIC_variable) %>%
+  mutate(Cant = DIC_variable - DIC_normal)
+
+DIC_models_AIP <- inner_join(DIC_models, basinmask)
+
+# select surface Cant
+DIC_models_surface <- DIC_models %>%
+  filter(depth == 5)
+```
+
+## Global surface map
+
+```{r plot_surface_map_Cant}
+
+map_global(DIC_models_surface, "Cant")
+
+```
+
+## Global section map
+
+```{r global_section_Cant}
+
+section_global(DIC_models, "Cant")
+
+```
+
+## Zonal section map
+
+```{r zonal_section_DIC}
+
+for (i_basin_AIP in unique(DIC_models_AIP$basin_AIP)) {
+    
+    breaks <- c(seq(-30, 100, 10), Inf)
+    print(section_zonal(DIC_models_AIP,
+                        i_basin_AIP = i_basin_AIP,
+                        "Cant"))
+  
+}
+
+```
