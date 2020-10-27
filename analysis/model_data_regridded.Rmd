@@ -1,0 +1,313 @@
+---
+title: "Read model data"
+author: "Donghe Zhu and Dr Jens Daniel Müller"
+date:  "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  workflowr::wflow_html:
+    number_sections: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+editor_options:
+  chunk_output_type: console
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+
+```{r library, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(patchwork)
+library(stars)
+library(collapse)
+library(lubridate)
+```
+
+```{r read_parameters, include = FALSE}
+parameters <-
+  read_rds(here::here("data",
+                       "parameters.rds"))
+```
+
+```{r read_mask_files, include = FALSE}
+
+basinmask <- read_csv(
+  here::here(
+    "data/World_Ocean_Atlas_2018/_summarized_files",
+    "basin_mask_WOA18_AIP.csv"
+  )
+)
+basinmask <- basinmask %>%
+  select(-basin)
+
+landmask <-  read_csv(
+  here::here(
+    "data/World_Ocean_Atlas_2018/_summarized_files",
+    "land_mask_WOA18.csv"
+  )
+)
+
+```
+
+```{r read_section_global_coordinates, include = FALSE}
+
+section_global_coordinates <- read_csv(
+  here::here(
+    "data/World_Ocean_Atlas_2018/_summarized_files",
+    "section_global_coordinates.csv"
+  )
+)
+
+```
+
+```{r read_functions, include = FALSE}
+source(here::here("code", "plotting_functions.R"))
+```
+
+```{r ggplot_theme, include = FALSE}
+# ggplot theme for all plots
+theme_set(theme_bw())
+```
+
+# Data source
+- UP Model results
+- [World Ocean Atlas 2018](https://www.nodc.noaa.gov/OC5/woa18/woa18data.html){target="_blank"}
+
+Here we use variable and normal forcing model DIC for 2007.
+
+We produced following plots for variable forcing model DIC in 2007 (annual average):
+
+- Map of surface value (depth = 5m)
+- Section - Depth plot along path from North Altantic -> Southern Ocean -> North Pacific
+- Zonal mean section for each basin (Atlantic, Indian, Pacific)
+
+
+# Read files
+
+
+## Read regridded variable forcing DIC in 2007
+
+```{r read_regridded_variable_DIC}
+
+# read in data
+variable_data <- read_ncdf(here::here("data",
+                                  "GIAF_JRA_2020_DIC_2007.nc"),
+                     var = "DIC")
+  
+# convert to tibble
+variable_data_tibble <- variable_data %>%
+  as_tibble()
+  
+# convert longitudes
+variable_data_tibble <- variable_data_tibble %>%
+  mutate(lon = if_else(lon < 20, lon + 360, lon))
+  
+# mutate variables and filter NaN value
+variable_data_tibble <- variable_data_tibble %>%
+  rename(depth = z_t, DIC_variable = DIC) %>%
+  mutate(depth = depth / 100) %>%
+  filter(!is.na(DIC_variable)) %>%
+  mutate(DIC_variable = as.numeric(DIC_variable))
+
+# select data included in basinmask
+variable_data_tibble <- inner_join(variable_data_tibble, basinmask) 
+
+rm(variable_data)
+
+```
+
+## Read regridded normal forcing DIC in 2007
+
+```{r read_regridded_normal_DIC}
+
+# read in data
+normal_data <- read_ncdf(here::here("data",
+                                  "GECO_NYF_cstCO2_DIC_2007.nc"),
+                     var = "DIC")
+  
+# convert to tibble
+normal_data_tibble <- normal_data %>%
+  as_tibble()
+  
+# convert longitudes
+normal_data_tibble <- normal_data_tibble %>%
+  mutate(lon = if_else(lon < 20, lon + 360, lon))
+  
+# mutate variables and filter NaN value
+normal_data_tibble <- normal_data_tibble %>%
+  rename(depth = z_t, DIC_normal = DIC) %>%
+  mutate(depth = depth / 100) %>%
+  filter(!is.na(DIC_normal)) %>%
+  mutate(DIC_normal = as.numeric(DIC_normal))
+
+# select data included in basinmask
+normal_data_tibble <- inner_join(normal_data_tibble, basinmask) 
+
+rm(normal_data)
+
+```
+
+## Read GLODAPv2 depth-regridded DIC in 2007
+
+```{r read_GLODAP_csv}
+
+# read GLODAPv2 depth-regridded DIC in 2007
+GLODAP <- read_csv(
+  here::here(
+    "data",
+    "GLODAP_regrid_depth.csv"
+  )
+)
+
+```
+
+
+# Global and regional distribution
+
+
+## Global surface distribution
+
+```{r map_global_DIC}
+
+# calculate annual average DIC in 2007
+variable_data_tibble_annual_average <- variable_data_tibble %>%
+  group_by(lat, lon, depth, basin_AIP) %>%
+  summarise(DIC_variable = mean(DIC_variable)) %>%
+  rename(DIC = DIC_variable)
+
+# filter surface annual average DIC in 2007
+variable_data_tibble_annual_average_surface <- variable_data_tibble_annual_average %>%
+  filter(depth == 5)
+  
+map_global_aa(variable_data_tibble_annual_average_surface, "DIC")
+
+```
+
+## Global section map
+
+```{r section_global_DIC}
+
+section_global_aa(variable_data_tibble_annual_average, "DIC")
+
+```
+
+## Zonal section map
+
+```{r section_zonal_DIC}
+
+for (i_basin_AIP in unique(variable_data_tibble_annual_average$basin_AIP)) {
+    
+    breaks <- c(seq(1960, 2400, 40), Inf)
+    print(section_zonal_aa(variable_data_tibble_annual_average,
+                        i_basin_AIP = i_basin_AIP,
+                        "DIC"))
+  
+}
+
+```
+
+
+# Subset variable DIC with GLODAP observations in 2007
+
+
+## Modify data
+
+```{r modify_data}
+
+# convert varibale DIC time to month
+variable_data_tibble_month <- variable_data_tibble %>%
+  mutate(time = month(time)) %>%
+  rename(month = time, DIC = DIC_variable)
+
+# convert GLODAP time to month
+GLODAP_month <- GLODAP %>%
+  mutate(date = month(date)) %>%
+  rename(month = date)
+
+# select model data where there is a corresponding observational data
+joint_obs_model <- left_join(GLODAP_month, variable_data_tibble_month) %>%
+  select(lon, lat, month, depth, tco2, DIC)
+
+```
+
+## Plot joint obs vs model
+
+```{r plot_joint_obs_model_DIC}
+
+# plot GLODAP observation and model data
+ggplot() + 
+  geom_raster(data = variable_data_tibble_annual_average_surface,
+             aes(lon, lat, fill = DIC)) +
+  scale_fill_viridis_c() +
+  coord_quickmap(expand = 0) +
+  geom_point(data = GLODAP_month,
+             aes(lon, lat)) +
+  geom_raster(data = landmask,
+              aes(lon, lat), fill = "grey80") +
+  labs(title = "Observation and Model DIC Distribution", subtitle = "Model DIC Depth: 5m | Annual Average", x = "Longitude", y = "Latitude", fill = "DIC [mmol/m3]") 
+
+rm(GLODAP, GLODAP_month, joint_obs_model, variable_data_tibble, variable_data_tibble_annual_average_surface, variable_data_tibble_month)
+
+```
+
+
+# Global distribution of Cant in 2007
+
+
+## Calculate annual average Cant in 2007
+
+```{r calculate_Cant_2007}
+
+# calculate annual average variable DIC in 2007
+variable_data_tibble_annual_average <- variable_data_tibble_annual_average %>%
+  rename(DIC_variable = DIC)
+
+# calculate annual average normal DIC in 2007
+normal_data_tibble_annual_average <- normal_data_tibble %>%
+  group_by(lat, lon, depth, basin_AIP) %>%
+  summarise(DIC_normal = mean(DIC_normal))
+
+# calculate annual average Cant in 2007
+DIC_models <- inner_join(variable_data_tibble_annual_average, normal_data_tibble_annual_average) %>%
+  mutate(Cant = DIC_variable - DIC_normal)
+
+# select surface Cant
+DIC_models_surface <- DIC_models %>%
+  filter(depth == 5)
+
+```
+
+## Global surface map
+
+```{r map_global_Cant}
+
+map_global_aa(DIC_models_surface, "Cant")
+
+```
+
+## Global section map
+
+```{r section_global_Cant}
+
+section_global_aa(DIC_models, "Cant")
+
+```
+
+## Zonal section map
+
+```{r section_zonal_Cant}
+
+for (i_basin_AIP in unique(DIC_models$basin_AIP)) {
+    
+    breaks <- c(seq(-30, 100, 10), Inf)
+    print(section_zonal_aa(DIC_models,
+                        i_basin_AIP = i_basin_AIP,
+                        "Cant"))
+  
+}
+
+```
+
+

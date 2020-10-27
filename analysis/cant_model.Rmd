@@ -70,7 +70,7 @@ theme_set(theme_bw())
 
 # Read csv files
 
-```{r read_csv_files_and_select_data, include = FALSE}
+```{r read_csv_files_and_select_data}
 
 # read variable forcing model in August
 variable_regrided_Aug <-  read_csv(

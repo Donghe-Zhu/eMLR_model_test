@@ -27,6 +27,8 @@ navbar:
     menu:
     - text: Cant model
       href: cant_model.html
+    - text: Model data regridded
+      href: model_data_regridded.html
   right:
   - icon: fa-github
     text: Source code
