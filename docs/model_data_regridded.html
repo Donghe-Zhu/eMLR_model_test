@@ -12,7 +12,7 @@
 <meta name="author" content="Donghe Zhu and Dr Jens Daniel Müller" />
 
 
-<title>Read and plot GLODAPv2 data</title>
+<title>Read model data</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -466,7 +466,7 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Read and plot GLODAPv2 data</h1>
+<h1 class="title toc-ignore">Read model data</h1>
 <h4 class="author">Donghe Zhu and Dr Jens Daniel Müller</h4>
 <h4 class="date">27 十月, 2020</h4>
 
@@ -628,7 +628,7 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <div id="versions" class="tab-pane fade">
 
 <p>
-These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/joint_obs_model_Aug.Rmd</code>) and HTML (<code>docs/joint_obs_model_Aug.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/model_data_regridded.Rmd</code>) and HTML (<code>docs/model_data_regridded.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
 </p>
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
@@ -654,36 +654,19 @@ Message
 <tbody>
 <tr>
 <td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/Donghe-Zhu/eMLR_model_test/7b057548bfcd63d077be526e49d919873934d725/docs/joint_obs_model_Aug.html" target="_blank">7b05754</a>
-</td>
-<td>
-Donghe_Zhu
-</td>
-<td>
-2020-10-21
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
 Rmd
 </td>
 <td>
-<a href="https://github.com/Donghe-Zhu/eMLR_model_test/blob/b2d84f7508ad7a92d9e209a4feef08c64a3b5a3d/analysis/joint_obs_model_Aug.Rmd" target="_blank">b2d84f7</a>
+<a href="https://github.com/Donghe-Zhu/eMLR_model_test/blob/05df17b68e8b9cf07a53d74345bea8daf90e9292/analysis/model_data_regridded.Rmd" target="_blank">05df17b</a>
 </td>
 <td>
 Donghe_Zhu
 </td>
 <td>
-2020-10-21
+2020-10-27
 </td>
 <td>
-Seperate tasks
+With regridded files
 </td>
 </tr>
 </tbody>
@@ -694,18 +677,83 @@ Seperate tasks
 </div>
 </div>
 <pre class="r"><code>library(tidyverse)
+library(patchwork)
+library(stars)
+library(collapse)
 library(lubridate)</code></pre>
-<div id="read-csv-files" class="section level1">
-<h1><span class="header-section-number">1</span> Read csv files</h1>
-<pre class="r"><code># read variable forcing model regrid data in August
-variable_regrided_Aug &lt;- read_csv(
-  here::here(
-    &quot;data&quot;,
-    &quot;variable_regrided_Aug.csv&quot;
-  )
-)
+<div id="data-source" class="section level1">
+<h1><span class="header-section-number">1</span> Data source</h1>
+<ul>
+<li>UP Model results</li>
+<li><a href="https://www.nodc.noaa.gov/OC5/woa18/woa18data.html" target="_blank">World Ocean Atlas 2018</a></li>
+</ul>
+<p>Here we use variable and normal forcing model DIC for 2007.</p>
+<p>We produced following plots for variable forcing model DIC in 2007 (annual average):</p>
+<ul>
+<li>Map of surface value (depth = 5m)</li>
+<li>Section - Depth plot along path from North Altantic -&gt; Southern Ocean -&gt; North Pacific</li>
+<li>Zonal mean section for each basin (Atlantic, Indian, Pacific)</li>
+</ul>
+</div>
+<div id="read-files" class="section level1">
+<h1><span class="header-section-number">2</span> Read files</h1>
+<div id="read-regridded-variable-forcing-dic-in-2007" class="section level2">
+<h2><span class="header-section-number">2.1</span> Read regridded variable forcing DIC in 2007</h2>
+<pre class="r"><code># read in data
+variable_data &lt;- read_ncdf(here::here(&quot;data&quot;,
+                                  &quot;GIAF_JRA_2020_DIC_2007.nc&quot;),
+                     var = &quot;DIC&quot;)
+  
+# convert to tibble
+variable_data_tibble &lt;- variable_data %&gt;%
+  as_tibble()
+  
+# convert longitudes
+variable_data_tibble &lt;- variable_data_tibble %&gt;%
+  mutate(lon = if_else(lon &lt; 20, lon + 360, lon))
+  
+# mutate variables and filter NaN value
+variable_data_tibble &lt;- variable_data_tibble %&gt;%
+  rename(depth = z_t, DIC_variable = DIC) %&gt;%
+  mutate(depth = depth / 100) %&gt;%
+  filter(!is.na(DIC_variable)) %&gt;%
+  mutate(DIC_variable = as.numeric(DIC_variable))
 
-# read GLODAPv2 depth regrided data
+# select data included in basinmask
+variable_data_tibble &lt;- inner_join(variable_data_tibble, basinmask) 
+
+rm(variable_data)</code></pre>
+</div>
+<div id="read-regridded-normal-forcing-dic-in-2007" class="section level2">
+<h2><span class="header-section-number">2.2</span> Read regridded normal forcing DIC in 2007</h2>
+<pre class="r"><code># read in data
+normal_data &lt;- read_ncdf(here::here(&quot;data&quot;,
+                                  &quot;GECO_NYF_cstCO2_DIC_2007.nc&quot;),
+                     var = &quot;DIC&quot;)
+  
+# convert to tibble
+normal_data_tibble &lt;- normal_data %&gt;%
+  as_tibble()
+  
+# convert longitudes
+normal_data_tibble &lt;- normal_data_tibble %&gt;%
+  mutate(lon = if_else(lon &lt; 20, lon + 360, lon))
+  
+# mutate variables and filter NaN value
+normal_data_tibble &lt;- normal_data_tibble %&gt;%
+  rename(depth = z_t, DIC_normal = DIC) %&gt;%
+  mutate(depth = depth / 100) %&gt;%
+  filter(!is.na(DIC_normal)) %&gt;%
+  mutate(DIC_normal = as.numeric(DIC_normal))
+
+# select data included in basinmask
+normal_data_tibble &lt;- inner_join(normal_data_tibble, basinmask) 
+
+rm(normal_data)</code></pre>
+</div>
+<div id="read-glodapv2-depth-regridded-dic-in-2007" class="section level2">
+<h2><span class="header-section-number">2.3</span> Read GLODAPv2 depth-regridded DIC in 2007</h2>
+<pre class="r"><code># read GLODAPv2 depth-regridded DIC in 2007
 GLODAP &lt;- read_csv(
   here::here(
     &quot;data&quot;,
@@ -713,76 +761,119 @@ GLODAP &lt;- read_csv(
   )
 )</code></pre>
 </div>
-<div id="modify-data" class="section level1">
-<h1><span class="header-section-number">2</span> Modify data</h1>
-<pre class="r"><code># convert GLODAP time to month
-GLODAP &lt;- GLODAP %&gt;%
+</div>
+<div id="global-and-regional-distribution" class="section level1">
+<h1><span class="header-section-number">3</span> Global and regional distribution</h1>
+<div id="global-surface-distribution" class="section level2">
+<h2><span class="header-section-number">3.1</span> Global surface distribution</h2>
+<pre class="r"><code># calculate annual average DIC in 2007
+variable_data_tibble_annual_average &lt;- variable_data_tibble %&gt;%
+  group_by(lat, lon, depth, basin_AIP) %&gt;%
+  summarise(DIC_variable = mean(DIC_variable)) %&gt;%
+  rename(DIC = DIC_variable)
+
+# filter surface annual average DIC in 2007
+variable_data_tibble_annual_average_surface &lt;- variable_data_tibble_annual_average %&gt;%
+  filter(depth == 5)
+  
+map_global_aa(variable_data_tibble_annual_average_surface, &quot;DIC&quot;)</code></pre>
+<p><img src="figure/model_data_regridded.Rmd/map_global_DIC-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="global-section-map" class="section level2">
+<h2><span class="header-section-number">3.2</span> Global section map</h2>
+<pre class="r"><code>section_global_aa(variable_data_tibble_annual_average, &quot;DIC&quot;)</code></pre>
+<p><img src="figure/model_data_regridded.Rmd/section_global_DIC-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="zonal-section-map" class="section level2">
+<h2><span class="header-section-number">3.3</span> Zonal section map</h2>
+<pre class="r"><code>for (i_basin_AIP in unique(variable_data_tibble_annual_average$basin_AIP)) {
+    
+    breaks &lt;- c(seq(1960, 2400, 40), Inf)
+    print(section_zonal_aa(variable_data_tibble_annual_average,
+                        i_basin_AIP = i_basin_AIP,
+                        &quot;DIC&quot;))
+  
+}</code></pre>
+<p><img src="figure/model_data_regridded.Rmd/section_zonal_DIC-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/model_data_regridded.Rmd/section_zonal_DIC-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/model_data_regridded.Rmd/section_zonal_DIC-3.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="subset-variable-dic-with-glodap-observations-in-2007" class="section level1">
+<h1><span class="header-section-number">4</span> Subset variable DIC with GLODAP observations in 2007</h1>
+<div id="modify-data" class="section level2">
+<h2><span class="header-section-number">4.1</span> Modify data</h2>
+<pre class="r"><code># convert varibale DIC time to month
+variable_data_tibble_month &lt;- variable_data_tibble %&gt;%
+  mutate(time = month(time)) %&gt;%
+  rename(month = time, DIC = DIC_variable)
+
+# convert GLODAP time to month
+GLODAP_month &lt;- GLODAP %&gt;%
   mutate(date = month(date)) %&gt;%
   rename(month = date)
 
-# select GLODAP August data
-GLODAP_Aug &lt;- GLODAP %&gt;%
-  filter(month == 8)
-
 # select model data where there is a corresponding observational data
-joint_obs_model &lt;- left_join(GLODAP_Aug, variable_regrided_Aug) %&gt;%
-  arrange(lon, lat, month, depth) %&gt;%
-  select(lon, lat, month, depth, tem, TEMP, sal, SALT, tco2, DIC, talk, ALK, nitrate, NO3, phosphate, PO4, silicate, SiO3, oxygen, O2, aou, AOU)</code></pre>
+joint_obs_model &lt;- left_join(GLODAP_month, variable_data_tibble_month) %&gt;%
+  select(lon, lat, month, depth, tco2, DIC)</code></pre>
 </div>
-<div id="plot-joint-obs-vs-model" class="section level1">
-<h1><span class="header-section-number">3</span> Plot joint obs vs model</h1>
+<div id="plot-joint-obs-vs-model" class="section level2">
+<h2><span class="header-section-number">4.2</span> Plot joint obs vs model</h2>
 <pre class="r"><code># plot GLODAP observation and model data
-variable_regrided_Aug_surface &lt;- variable_regrided_Aug %&gt;%
-  filter(depth == 5)
-
 ggplot() + 
-  geom_raster(data = variable_regrided_Aug_surface,
+  geom_raster(data = variable_data_tibble_annual_average_surface,
              aes(lon, lat, fill = DIC)) +
   scale_fill_viridis_c() +
   coord_quickmap(expand = 0) +
-  geom_point(data = GLODAP_Aug,
+  geom_point(data = GLODAP_month,
              aes(lon, lat)) +
   geom_raster(data = landmask,
               aes(lon, lat), fill = &quot;grey80&quot;) +
-  labs(title = &quot;Observation and Model Data Distribution&quot;, subtitle = &quot;Model DIC Depth: 5m | Month: August&quot;, x = &quot;Longitude&quot;, y = &quot;Latitude&quot;, fill = &quot;DIC [mmol/m3]&quot;) </code></pre>
-<p><img src="figure/joint_obs_model_Aug.Rmd/plot_joint_obs_model-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-plot_joint_obs_model-1">
-Past versions of plot_joint_obs_model-1.png
-</button>
-</p>
-<div id="fig-plot_joint_obs_model-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/Donghe-Zhu/eMLR_model_test/blob/7b057548bfcd63d077be526e49d919873934d725/docs/figure/joint_obs_model_Aug.Rmd/plot_joint_obs_model-1.png" target="_blank">7b05754</a>
-</td>
-<td>
-Donghe_Zhu
-</td>
-<td>
-2020-10-21
-</td>
-</tr>
-</tbody>
-</table>
+  labs(title = &quot;Observation and Model DIC Distribution&quot;, subtitle = &quot;Model DIC Depth: 5m | Annual Average&quot;, x = &quot;Longitude&quot;, y = &quot;Latitude&quot;, fill = &quot;DIC [mmol/m3]&quot;) </code></pre>
+<p><img src="figure/model_data_regridded.Rmd/plot_joint_obs_model_DIC-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>rm(GLODAP, GLODAP_month, joint_obs_model, variable_data_tibble, variable_data_tibble_annual_average_surface, variable_data_tibble_month)</code></pre>
 </div>
 </div>
+<div id="global-distribution-of-cant-in-2007" class="section level1">
+<h1><span class="header-section-number">5</span> Global distribution of Cant in 2007</h1>
+<div id="calculate-annual-average-cant-in-2007" class="section level2">
+<h2><span class="header-section-number">5.1</span> Calculate annual average Cant in 2007</h2>
+<pre class="r"><code># calculate annual average variable DIC in 2007
+variable_data_tibble_annual_average &lt;- variable_data_tibble_annual_average %&gt;%
+  rename(DIC_variable = DIC)
+
+# calculate annual average normal DIC in 2007
+normal_data_tibble_annual_average &lt;- normal_data_tibble %&gt;%
+  group_by(lat, lon, depth, basin_AIP) %&gt;%
+  summarise(DIC_normal = mean(DIC_normal))
+
+# calculate annual average Cant in 2007
+DIC_models &lt;- inner_join(variable_data_tibble_annual_average, normal_data_tibble_annual_average) %&gt;%
+  mutate(Cant = DIC_variable - DIC_normal)
+
+# select surface Cant
+DIC_models_surface &lt;- DIC_models %&gt;%
+  filter(depth == 5)</code></pre>
+</div>
+<div id="global-surface-map" class="section level2">
+<h2><span class="header-section-number">5.2</span> Global surface map</h2>
+<pre class="r"><code>map_global_aa(DIC_models_surface, &quot;Cant&quot;)</code></pre>
+<p><img src="figure/model_data_regridded.Rmd/map_global_Cant-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="global-section-map-1" class="section level2">
+<h2><span class="header-section-number">5.3</span> Global section map</h2>
+<pre class="r"><code>section_global_aa(DIC_models, &quot;Cant&quot;)</code></pre>
+<p><img src="figure/model_data_regridded.Rmd/section_global_Cant-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="zonal-section-map-1" class="section level2">
+<h2><span class="header-section-number">5.4</span> Zonal section map</h2>
+<pre class="r"><code>for (i_basin_AIP in unique(DIC_models$basin_AIP)) {
+    
+    breaks &lt;- c(seq(-30, 100, 10), Inf)
+    print(section_zonal_aa(DIC_models,
+                        i_basin_AIP = i_basin_AIP,
+                        &quot;Cant&quot;))
+  
+}</code></pre>
+<p><img src="figure/model_data_regridded.Rmd/section_zonal_Cant-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/model_data_regridded.Rmd/section_zonal_Cant-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/model_data_regridded.Rmd/section_zonal_Cant-3.png" width="672" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -806,26 +897,33 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] lubridate_1.7.9 forcats_0.5.0   stringr_1.4.0   dplyr_1.0.2    
- [5] purrr_0.3.4     readr_1.3.1     tidyr_1.1.2     tibble_3.0.3   
- [9] ggplot2_3.3.2   tidyverse_1.3.0 workflowr_1.6.2
+ [1] lubridate_1.7.9 collapse_1.3.2  stars_0.4-3     sf_0.9-6       
+ [5] abind_1.4-5     patchwork_1.0.1 forcats_0.5.0   stringr_1.4.0  
+ [9] dplyr_1.0.2     purrr_0.3.4     readr_1.3.1     tidyr_1.1.2    
+[13] tibble_3.0.3    ggplot2_3.3.2   tidyverse_1.3.0 workflowr_1.6.2
 
 loaded via a namespace (and not attached):
- [1] tidyselect_1.1.0  xfun_0.18         haven_2.3.1       colorspace_1.4-1 
- [5] vctrs_0.3.4       generics_0.0.2    viridisLite_0.3.0 htmltools_0.5.0  
- [9] yaml_2.2.1        blob_1.2.1        rlang_0.4.7       later_1.1.0.1    
-[13] pillar_1.4.6      withr_2.3.0       glue_1.4.2        DBI_1.1.0        
-[17] dbplyr_1.4.4      modelr_0.1.8      readxl_1.3.1      lifecycle_0.2.0  
-[21] munsell_0.5.0     gtable_0.3.0      cellranger_1.1.0  rvest_0.3.6      
-[25] evaluate_0.14     labeling_0.3      knitr_1.30        httpuv_1.5.4     
-[29] fansi_0.4.1       broom_0.7.1       Rcpp_1.0.5        promises_1.1.1   
-[33] backports_1.1.10  scales_1.1.1      jsonlite_1.7.1    farver_2.0.3     
-[37] fs_1.5.0          hms_0.5.3         digest_0.6.25     stringi_1.5.3    
-[41] rprojroot_1.3-2   grid_4.0.2        here_0.1          cli_2.0.2        
-[45] tools_4.0.2       magrittr_1.5      crayon_1.3.4      whisker_0.4      
-[49] pkgconfig_2.0.3   ellipsis_0.3.1    xml2_1.3.2        reprex_0.3.0     
-[53] assertthat_0.2.1  rmarkdown_2.4     httr_1.4.2        rstudioapi_0.11  
-[57] R6_2.4.1          git2r_0.27.1      compiler_4.0.2   </code></pre>
+ [1] httr_1.4.2         viridisLite_0.3.0  jsonlite_1.7.1     here_0.1          
+ [5] modelr_0.1.8       Formula_1.2-3      assertthat_0.2.1   blob_1.2.1        
+ [9] cellranger_1.1.0   yaml_2.2.1         pillar_1.4.6       backports_1.1.10  
+[13] lattice_0.20-41    glue_1.4.2         digest_0.6.25      promises_1.1.1    
+[17] rvest_0.3.6        colorspace_1.4-1   sandwich_3.0-0     htmltools_0.5.0   
+[21] httpuv_1.5.4       Matrix_1.2-18      pkgconfig_2.0.3    broom_0.7.1       
+[25] haven_2.3.1        PCICt_0.5-4.1      xtable_1.8-4       scales_1.1.1      
+[29] whisker_0.4        later_1.1.0.1      git2r_0.27.1       farver_2.0.3      
+[33] generics_0.0.2     ellipsis_0.3.1     withr_2.3.0        cli_2.0.2         
+[37] magrittr_1.5       crayon_1.3.4       readxl_1.3.1       evaluate_0.14     
+[41] fs_1.5.0           fansi_0.4.1        xml2_1.3.2         lwgeom_0.2-5      
+[45] class_7.3-17       tools_4.0.2        hms_0.5.3          lifecycle_0.2.0   
+[49] munsell_0.5.0      reprex_0.3.0       isoband_0.2.2      compiler_4.0.2    
+[53] e1071_1.7-3        lfe_2.8-5.1        RNetCDF_2.4-2      rlang_0.4.7       
+[57] classInt_0.4-3     units_0.6-7        grid_4.0.2         rstudioapi_0.11   
+[61] labeling_0.3       rmarkdown_2.4      gtable_0.3.0       DBI_1.1.0         
+[65] R6_2.4.1           ncmeta_0.3.0       zoo_1.8-8          knitr_1.30        
+[69] rprojroot_1.3-2    KernSmooth_2.23-17 stringi_1.5.3      parallel_4.0.2    
+[73] Rcpp_1.0.5         vctrs_0.3.4        dbplyr_1.4.4       tidyselect_1.1.0  
+[77] xfun_0.18         </code></pre>
+</div>
 </div>
 </div>
 
