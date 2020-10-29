@@ -403,7 +403,7 @@ div.tocify {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="read_model_data_Aug.html">Read model data August</a>
+      <a href="read_model_data_2007.html">Read model DIC 2007</a>
     </li>
     <li>
       <a href="read_GLODAPv2_data.html">Read GLODAPv2 data</a>
@@ -418,10 +418,10 @@ div.tocify {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="variable_model_data_Aug.html">Variable model data August</a>
+      <a href="variable_model_data_2007.html">Variable model DIC 2007</a>
     </li>
     <li>
-      <a href="joint_obs_model_Aug.html">variable model vs GLODAPv2 August</a>
+      <a href="joint_obs_model_2007.html">variable model vs GLODAPv2 2007</a>
     </li>
   </ul>
 </li>
@@ -433,10 +433,7 @@ div.tocify {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="cant_model.html">Cant model</a>
-    </li>
-    <li>
-      <a href="model_data_regridded.html">Model data regridded</a>
+      <a href="cant_model_2007.html">Cant model 2007</a>
     </li>
   </ul>
 </li>
@@ -468,7 +465,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Read and plot GLODAPv2 data</h1>
 <h4 class="author">Donghe Zhu and Dr Jens Daniel Müller</h4>
-<h4 class="date">27 十月, 2020</h4>
+<h4 class="date">30 十月, 2020</h4>
 
 </div>
 
@@ -493,7 +490,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-10-27
+<strong>Last updated:</strong> 2020-10-30
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -584,16 +581,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttree05df17b68e8b9cf07a53d74345bea8daf90e9292targetblank05df17ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/05df17b68e8b9cf07a53d74345bea8daf90e9292" target="_blank">05df17b</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttreefde70f8e80b685a9486ab5bae25fd7dd3a6b1eebtargetblankfde70f8a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/fde70f8e80b685a9486ab5bae25fd7dd3a6b1eeb" target="_blank">fde70f8</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttree05df17b68e8b9cf07a53d74345bea8daf90e9292targetblank05df17ba" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomDongheZhueMLRmodeltesttreefde70f8e80b685a9486ab5bae25fd7dd3a6b1eebtargetblankfde70f8a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/05df17b68e8b9cf07a53d74345bea8daf90e9292" target="_blank">05df17b</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/Donghe-Zhu/eMLR_model_test/tree/fde70f8e80b685a9486ab5bae25fd7dd3a6b1eeb" target="_blank">fde70f8</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -604,16 +601,24 @@ Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
     Ignored:    analysis/.DS_Store
+    Ignored:    code/.DS_Store
     Ignored:    data/World_Ocean_Atlas_2018/
 
 Untracked files:
     Untracked:  DIC_path.csv
     Untracked:  code/Workflowr_project_managment.R
+    Untracked:  code/model_data_regridded.Rmd
     Untracked:  code/plotting_functions.R
+    Untracked:  code/variable_model_data_Aug.Rmd
     Untracked:  section_global_coordinates.csv
 
 Unstaged changes:
+    Deleted:    analysis/cant_model.Rmd
+    Deleted:    analysis/joint_obs_model_Aug.Rmd
+    Deleted:    analysis/model_data_regridded.Rmd
     Deleted:    analysis/read_model_data.Rmd
+    Deleted:    analysis/read_model_data_Aug.Rmd
+    Deleted:    analysis/variable_model_data_Aug.Rmd
 
 </code></pre>
 <p>
@@ -652,6 +657,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/Donghe-Zhu/eMLR_model_test/blob/fde70f8e80b685a9486ab5bae25fd7dd3a6b1eeb/analysis/read_GLODAPv2_data.Rmd" target="_blank">fde70f8</a>
+</td>
+<td>
+Donghe_Zhu
+</td>
+<td>
+2020-10-30
+</td>
+<td>
+using annual average regridded DIC outputs
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/Donghe-Zhu/eMLR_model_test/fdbf4336163c5b2d470732e904ba03060fb0d92d/docs/read_GLODAPv2_data.html" target="_blank">fdbf433</a>
+</td>
+<td>
+Donghe_Zhu
+</td>
+<td>
+2020-10-27
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 html
