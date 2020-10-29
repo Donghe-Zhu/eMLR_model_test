@@ -1,0 +1,113 @@
+---
+title: "Read model data"
+author: "Donghe Zhu and Dr Jens Daniel Müller"
+date:  "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  workflowr::wflow_html:
+    number_sections: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+editor_options:
+  chunk_output_type: console
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+```{r library, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(stars)
+library(collapse)
+```
+
+```{r read_mask_files, include = FALSE}
+
+basinmask <- read_csv(
+  here::here(
+    "data/World_Ocean_Atlas_2018/_summarized_files",
+    "basin_mask_WOA18_AIP.csv"
+  )
+)
+basinmask <- basinmask %>%
+  select(-basin)
+
+```
+
+```{r ggplot_theme, include = FALSE}
+# ggplot theme for all plots
+theme_set(theme_bw())
+```
+
+# Read regridded variable forcing DIC in 2007
+
+```{r read_regridded_variable_DIC}
+
+# read in data
+variable_data <- read_ncdf(here::here("data",
+                                  "GIAF_JRA_2020_DIC_2007.nc"),
+                     var = "DIC")
+  
+# convert to tibble
+variable_data_tibble <- variable_data %>%
+  as_tibble()
+  
+# convert longitudes
+variable_data_tibble <- variable_data_tibble %>%
+  mutate(lon = if_else(lon < 20, lon + 360, lon))
+  
+# mutate variables and filter NaN value
+variable_data_tibble <- variable_data_tibble %>%
+  rename(depth = z_t, DIC_variable = DIC) %>%
+  mutate(depth = depth / 100) %>%
+  filter(!is.na(DIC_variable)) %>%
+  mutate(DIC_variable = as.numeric(DIC_variable))
+
+# select data included in basinmask
+variable_data_tibble <- inner_join(variable_data_tibble, basinmask) 
+
+# write file
+variable_data_tibble %>%
+  write_csv(here::here("data",
+                       "variable_DIC_2007.csv"))
+
+rm(variable_data, variable_data_tibble)
+
+```
+
+# Read regridded normal forcing DIC in 2007
+
+```{r read_regridded_normal_DIC}
+
+# read in data
+normal_data <- read_ncdf(here::here("data",
+                                  "GECO_NYF_cstCO2_DIC_2007.nc"),
+                     var = "DIC")
+  
+# convert to tibble
+normal_data_tibble <- normal_data %>%
+  as_tibble()
+  
+# convert longitudes
+normal_data_tibble <- normal_data_tibble %>%
+  mutate(lon = if_else(lon < 20, lon + 360, lon))
+  
+# mutate variables and filter NaN value
+normal_data_tibble <- normal_data_tibble %>%
+  rename(depth = z_t, DIC_normal = DIC) %>%
+  mutate(depth = depth / 100) %>%
+  filter(!is.na(DIC_normal)) %>%
+  mutate(DIC_normal = as.numeric(DIC_normal))
+
+# select data included in basinmask
+normal_data_tibble <- inner_join(normal_data_tibble, basinmask) 
+
+# write file
+normal_data_tibble %>%
+  write_csv(here::here("data",
+                       "normal_DIC_2007.csv"))
+
+rm(normal_data, normal_data_tibble)
+
+```

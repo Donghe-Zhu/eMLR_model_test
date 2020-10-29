@@ -13,22 +13,20 @@ navbar:
       href: config_masks.html
   - text: Data base
     menu:
-    - text: Read model data August
-      href: read_model_data_Aug.html
+    - text: Read model DIC 2007
+      href: read_model_data_2007.html
     - text: Read GLODAPv2 data
       href: read_GLODAPv2_data.html
   - text: Mapping
     menu:
-    - text: Variable model data August
-      href: variable_model_data_Aug.html
-    - text: variable model vs GLODAPv2 August
-      href: joint_obs_model_Aug.html
+    - text: Variable model DIC 2007
+      href: variable_model_data_2007.html
+    - text: variable model vs GLODAPv2 2007
+      href: joint_obs_model_2007.html
   - text: Analysis
     menu:
-    - text: Cant model
-      href: cant_model.html
-    - text: Model data regridded
-      href: model_data_regridded.html
+    - text: Cant model 2007
+      href: cant_model_2007.html
   right:
   - icon: fa-github
     text: Source code

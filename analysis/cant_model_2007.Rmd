@@ -1,0 +1,146 @@
+---
+title: "Calculate Cant based on two models"
+author: "Donghe Zhu and Dr Jens Daniel Müller"
+date:  "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  workflowr::wflow_html:
+    number_sections: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+editor_options:
+  chunk_output_type: console
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+
+```{r library, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(patchwork)
+```
+
+```{r read_parameters, include = FALSE}
+parameters <-
+  read_rds(here::here("data",
+                       "parameters.rds"))
+```
+
+```{r read_mask_files, include = FALSE}
+
+basinmask <- read_csv(
+  here::here(
+    "data/World_Ocean_Atlas_2018/_summarized_files",
+    "basin_mask_WOA18_AIP.csv"
+  )
+)
+basinmask <- basinmask %>%
+  select(-basin)
+
+landmask <-  read_csv(
+  here::here(
+    "data/World_Ocean_Atlas_2018/_summarized_files",
+    "land_mask_WOA18.csv"
+  )
+)
+
+```
+
+```{r read_section_global_coordinates, include = FALSE}
+
+section_global_coordinates <- read_csv(
+  here::here(
+    "data/World_Ocean_Atlas_2018/_summarized_files",
+    "section_global_coordinates.csv"
+  )
+)
+
+```
+
+```{r read_functions, include = FALSE}
+source(here::here("code", "plotting_functions.R"))
+```
+
+```{r ggplot_theme, include = FALSE}
+# ggplot theme for all plots
+theme_set(theme_bw())
+```
+
+# Read csv files
+
+```{r read_csv_files_and_calculate_annual_average_DIC}
+
+# read variable forcing model DIC in 2007
+variable_data_tibble <-  read_csv(
+  here::here(
+    "data",
+    "variable_DIC_2007.csv"
+  )
+)
+
+# calculate annual average variable DIC in 2007
+variable_data_tibble_annual_average <- variable_data_tibble %>%
+  group_by(lon, lat, depth, basin_AIP) %>%
+  summarise(DIC_variable = mean(DIC_variable))
+
+# read normal forcing model DIC in 2007
+normal_data_tibble <-  read_csv(
+  here::here(
+    "data",
+    "normal_DIC_2007.csv"
+  )
+)
+
+# calculate annual average normal DIC in 2007
+normal_data_tibble_annual_average <- normal_data_tibble %>%
+  group_by(lon, lat, depth, basin_AIP) %>%
+  summarise(DIC_normal = mean(DIC_normal))
+
+```
+
+# Global distribution of Cant in August 2007
+
+```{r calculate_Cant_2007}
+
+# calculate annual average Cant in 2007
+DIC_models <- inner_join(variable_data_tibble_annual_average, normal_data_tibble_annual_average) %>%
+  mutate(Cant = DIC_variable - DIC_normal)
+
+# select surface Cant
+DIC_models_surface <- DIC_models %>%
+  filter(depth == 5)
+
+```
+
+## Global surface map
+
+```{r map_global_Cant}
+
+map_global_aa(DIC_models_surface, "Cant")
+
+```
+
+## Global section map
+
+```{r section_global_Cant}
+
+section_global_aa(DIC_models, "Cant")
+
+```
+
+## Zonal section map
+
+```{r section_zonal_Cant}
+
+for (i_basin_AIP in unique(DIC_models$basin_AIP)) {
+    
+    breaks <- c(seq(-30, 100, 10), Inf)
+    print(section_zonal_aa(DIC_models,
+                        i_basin_AIP = i_basin_AIP,
+                        "Cant"))
+  
+}
+
+```

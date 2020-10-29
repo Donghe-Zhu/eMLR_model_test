@@ -1,0 +1,145 @@
+---
+title: "Variable forcing model plots"
+author: "Donghe Zhu and Dr Jens Daniel Müller"
+date:  "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  workflowr::wflow_html:
+    number_sections: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+editor_options:
+  chunk_output_type: console
+---
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+
+```{r library, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(patchwork)
+```
+
+```{r read_parameters, include = FALSE}
+parameters <-
+  read_rds(here::here("data",
+                       "parameters.rds"))
+```
+
+```{r read_mask_files, include = FALSE}
+
+basinmask <- read_csv(
+  here::here(
+    "data/World_Ocean_Atlas_2018/_summarized_files",
+    "basin_mask_WOA18_AIP.csv"
+  )
+)
+basinmask <- basinmask %>%
+  select(-basin)
+
+landmask <-  read_csv(
+  here::here(
+    "data/World_Ocean_Atlas_2018/_summarized_files",
+    "land_mask_WOA18.csv"
+  )
+)
+
+```
+
+```{r read_section_global_coordinates, include = FALSE}
+
+section_global_coordinates <- read_csv(
+  here::here(
+    "data/World_Ocean_Atlas_2018/_summarized_files",
+    "section_global_coordinates.csv"
+  )
+)
+
+```
+
+```{r read_functions, include = FALSE}
+source(here::here("code", "plotting_functions.R"))
+```
+
+```{r ggplot_theme, include = FALSE}
+# ggplot theme for all plots
+theme_set(theme_bw())
+```
+
+# Data source
+- UP Model results
+- [World Ocean Atlas 2018](https://www.nodc.noaa.gov/OC5/woa18/woa18data.html){target="_blank"}
+
+Here we use variable and normal forcing model DIC for 2007.
+
+We produced following plots for variable forcing model DIC in 2007 (annual average):
+
+- Map of surface value (depth = 5m)
+- Section - Depth plot along path from North Altantic -> Southern Ocean -> North Pacific
+- Zonal mean section for each basin (Atlantic, Indian, Pacific)
+
+# Read csv file
+
+```{r read_file_and_calculate_annual_average_DIC}
+
+# read variable forcing model DIC in 2007
+variable_data_tibble <-  read_csv(
+  here::here(
+    "data",
+    "variable_DIC_2007.csv"
+  )
+)
+
+# calculate annual average DIC in 2007
+variable_data_tibble_annual_average <- variable_data_tibble %>%
+  group_by(lat, lon, depth, basin_AIP) %>%
+  summarise(DIC_variable = mean(DIC_variable)) %>%
+  rename(DIC = DIC_variable)
+
+# filter surface annual average DIC in 2007
+variable_data_tibble_annual_average_surface <- variable_data_tibble_annual_average %>%
+  filter(depth == 5)
+
+```
+
+
+# Global surface distribution
+
+```{r plot_surface_map_DIC}
+
+map_global_aa(variable_data_tibble_annual_average_surface, "DIC")
+
+```
+
+From the plot we can find surface DIC concentration is quite high in Southern Ocean, which may be caused by long residence time of water there. Besides, low SST also facilitates the dissolution of CO2.
+Moreover, equatorial region has lower surface DIC, probably due to the strong upwelling event happening there stop the absorption process.
+
+
+# Global section map
+
+```{r global_section_DIC}
+
+section_global_aa(variable_data_tibble_annual_average, "DIC")
+
+```
+
+DIC concentration is directly linked with the age of water, with higher DIC found in older water, as the respiration-generated DIC accumulating along the way.
+
+
+# Zonal section map
+
+```{r zonal_section_DIC}
+
+for (i_basin_AIP in unique(variable_data_tibble_annual_average$basin_AIP)) {
+    
+    breaks <- c(seq(1960, 2400, 40), Inf)
+    print(section_zonal(variable_data_tibble_annual_average,
+                        i_basin_AIP = i_basin_AIP,
+                        "DIC"))
+  
+}
+
+```
+

@@ -27,7 +27,7 @@ library(tidyverse)
 nc_data_tibble_regrided <-  read_csv(
   here::here(
     "data",
-    "variable_regrided_Aug.csv"
+    "variable_DIC_2007.csv"
   )
 )
 
