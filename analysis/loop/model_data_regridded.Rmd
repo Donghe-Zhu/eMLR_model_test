@@ -91,10 +91,24 @@ We produced following plots for variable forcing model DIC in 2007 (annual avera
 
 ```{r read_regridded_variable_DIC}
 
+# set path to model output files
+path_model_regridded <- "/net/kryo/work/loher/CESM_output/RECCAP2/regridded/"
+
+# read list of all files
+file_list <- list.files(path = path_model_regridded, pattern = "*2020_DIC_2007.nc")
+print(file_list)
+
+# select item out of file_list
+file <- file_list[1]
+
 # read in data
-variable_data <- read_ncdf(here::here("data",
-                                  "GIAF_JRA_2020_DIC_2007.nc"),
-                     var = "DIC")
+variable_data <-
+  read_ncdf(paste(
+    path_model_regridded,
+    file,
+    sep = ""
+  ),
+  var = "DIC")
   
 # convert to tibble
 variable_data_tibble <- variable_data %>%
@@ -122,10 +136,24 @@ rm(variable_data)
 
 ```{r read_regridded_normal_DIC}
 
+# set path to model output files
+path_model_regridded <- "/net/kryo/work/loher/CESM_output/RECCAP2/regridded/"
+
+# read list of all files
+file_list <- list.files(path = path_model_regridded, pattern = "*cstCO2_DIC_2007.nc")
+print(file_list)
+
+# select item out of file_list
+file <- file_list[1]
+
 # read in data
-normal_data <- read_ncdf(here::here("data",
-                                  "GECO_NYF_cstCO2_DIC_2007.nc"),
-                     var = "DIC")
+normal_data <-
+  read_ncdf(paste(
+    path_model_regridded,
+    file,
+    sep = ""
+  ),
+  var = "DIC")
   
 # convert to tibble
 normal_data_tibble <- normal_data %>%
@@ -224,10 +252,36 @@ variable_data_tibble_month <- variable_data_tibble %>%
 # convert GLODAP time to month
 GLODAP_month <- GLODAP %>%
   mutate(date = month(date)) %>%
-  rename(month = date)
+  rename(month = date) %>%
+  select(month, lon, lat, depth, tco2) %>%
+  unique()
 
-# select model data where there is a corresponding observational data
-joint_obs_model <- left_join(GLODAP_month, variable_data_tibble_month) %>%
+# subset model data at the observation sites
+model_subset <- left_join(GLODAP_month, variable_data_tibble_month) %>%
+  select(lon, lat, month, depth, DIC) %>%
+  unique()
+
+# interpolate model subset
+model_subset <- model_subset %>%
+  group_by(lon, lat, month) %>% 
+  mutate(n = sum(!is.na(DIC))) %>% 
+  ungroup()
+
+model_subset_interpo <- model_subset %>%
+  filter(n > 1) %>%
+  group_by(lon, lat, month) %>%
+  arrange(depth) %>%
+  mutate(DIC = approxfun(depth, DIC, rule = 2)(depth)) %>%
+  ungroup()
+
+model_subset <- model_subset %>%
+  filter(n == 1) %>%
+  filter(!is.na(DIC))
+
+model_subset_interpo <- full_join(model_subset_interpo, model_subset)
+  
+# combine model data with corresponding observational data
+joint_obs_model <- left_join(model_subset_interpo, GLODAP_month) %>%
   select(lon, lat, month, depth, tco2, DIC)
 
 ```
@@ -248,7 +302,7 @@ ggplot() +
               aes(lon, lat), fill = "grey80") +
   labs(title = "Observation and Model DIC Distribution", subtitle = "Model DIC Depth: 5m | Annual Average", x = "Longitude", y = "Latitude", fill = "DIC [mmol/m3]") 
 
-rm(GLODAP, GLODAP_month, joint_obs_model, variable_data_tibble, variable_data_tibble_annual_average_surface, variable_data_tibble_month)
+rm(GLODAP, GLODAP_month, joint_obs_model,  variable_data_tibble, variable_data_tibble_annual_average_surface, variable_data_tibble_month, model_subset, model_subset_interpo)
 
 ```
 
