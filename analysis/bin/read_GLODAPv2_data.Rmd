@@ -1,0 +1,174 @@
+---
+title: "Read and plot GLODAPv2 data"
+author: "Donghe Zhu and Dr Jens Daniel Müller"
+date:  "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  workflowr::wflow_html:
+    number_sections: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+editor_options:
+  chunk_output_type: console
+---
+
+
+```{r global_options}
+# Some basic settings to improve the html output
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+
+# Required Packages
+
+```{r load_package}
+library(tidyverse) # the tidverse combines several packages
+library(ncdf4)
+library(stars)
+library(tidync)
+library(tidyselect)
+library(geosphere)
+library(PCICt)
+library(lubridate)
+library(collapse)
+```
+
+
+```{r ggplot_theme}
+# ggplot theme for all plots
+theme_set(theme_bw())
+```
+
+# Read and preprocess data from model  netcdf file
+```{r read_file_and_regrid_data}
+
+vars <- 
+  c("DIC","ALK","O2","AOU","NO3","PO4","SALT","TEMP","SiO3")
+
+for(i_var in vars) { 
+  
+  nc_data <- read_ncdf(here::here("data",
+                                "GIAF_JRA.pop.h.0354.nc"),
+                     var = i_var)
+  
+ # convert to tibble and regrid to 1° x 1°
+  nc_data_tibble <- nc_data %>%
+    as.tibble() %>%
+    mutate(nlon = if_else(nlon < 20, nlon + 360, nlon)) %>%
+    rename(lon = nlon, lat = nlat, depth = z_t) %>%
+    mutate(lat = cut(lat, seq(-90, 90, 1), seq(-89.5, 89.5, 1)),
+           lat = as.numeric(as.character(lat)),
+           lon = cut(lon, seq(20, 380, 1), seq(20.5, 379.5, 1)),
+           lon = as.numeric(as.character(lon))) %>%
+    mutate(depth = depth / 100)
+  
+ # filter NaN value
+  nc_data_tibble <- nc_data_tibble %>%
+    filter(!is.na(!!sym(i_var)))
+
+ # average for the same 4D values
+  nc_data_tibble <- nc_data_tibble %>%
+    fgroup_by(lon, lat, depth, time) %>% {
+     add_vars(fgroup_vars(.,"unique"),
+              fmean(., keep.group_vars = FALSE))
+    }
+
+  if (exists("nc_data_tibble_regrided")) {
+    nc_data_tibble_regrided = full_join(nc_data_tibble_regrided, nc_data_tibble)
+  }
+  
+  if (!exists("nc_data_tibble_regrided")) {
+    nc_data_tibble_regrided <- nc_data_tibble 
+  }
+
+}
+
+# convert as numeric
+nc_data_tibble_regrided <- nc_data_tibble_regrided %>%
+  mutate(DIC = as.numeric(DIC)) %>%
+  mutate(ALK = as.numeric(ALK)) %>%
+  mutate(O2 = as.numeric(O2)) %>%
+  mutate(AOU = as.numeric(AOU)) %>%
+  mutate(NO3 = as.numeric(NO3)) %>%
+  mutate(PO4 = as.numeric(PO4)) %>%
+  mutate(SALT = as.numeric(SALT)) %>%
+  mutate(TEMP = as.numeric(TEMP)) %>%
+  mutate(SiO3 = as.numeric(SiO3))
+
+# convert time to month
+nc_data_tibble_regrided <- nc_data_tibble_regrided %>%
+  mutate(time = month(time) + 1) %>%
+  mutate(time = if_else(time == 13, 1, time)) %>%
+  rename(month = time)
+
+```
+
+# Read GLODAP data from csv file
+```{r read_file_and_extract_data}
+
+# read csv file
+GLODAP <-
+  read_csv(
+    here::here(
+      "data",
+      "GLODAPv2.2020_clean_2007.csv"
+    ))
+
+# convert time to month
+GLODAP_clean <- GLODAP %>%
+  mutate(date = month(date)) %>%
+  rename(month = date)
+
+# set depth range
+depth_model <- unique(nc_data_tibble_regrided$depth)
+range_temp <- 1:(length(depth_model) - 1)
+for (i in 1:(length(depth_model) - 1))  {
+  range_temp[i] <- (depth_model[i] + depth_model[i + 1]) / 2
+}
+  range <- c(0)
+  range <- append(range, range_temp) 
+  range <- append(range, Inf)
+  print(range)
+
+# convert observational depth to 60 model depth
+GLODAP_clean <- GLODAP_clean %>%
+  mutate(depth = cut(depth, range, depth_model), depth = as.numeric(as.character(depth)))
+
+# select model data where there is a corresponding observational data
+joint_obs_model <- left_join(GLODAP_clean, nc_data_tibble_regrided) %>%
+  arrange(lon, lat, month, depth) %>%
+  select(lon, lat, month, depth, tem, TEMP, sal, SALT, tco2, DIC, talk, ALK, nitrate, NO3, phosphate, PO4, silicate, SiO3, oxygen, O2, aou, AOU)
+
+```
+
+# Plot joint obs vs model
+```{r plot_joint_obs_model}
+
+# read in landmask file
+landmask <- 
+  read_csv(here::here("data/World_Ocean_Atlas_2018/_summarized_files",
+                       "land_mask_WOA18.csv"))
+
+# plot GLODAP observation and model data
+DIC_surface_Aug <- nc_data_tibble_regrided %>%
+  filter(depth == 5, month == 8)
+
+ggplot() + 
+  geom_point(data = nc_data_tibble_regrided,
+             aes(lon, lat, col = DIC)) +
+  coord_quickmap(expand = 0) +
+  geom_point(data = GLODAP_clean,
+             aes(lon, lat)) +
+  geom_raster(data = landmask,
+              aes(lon, lat), fill = "grey80")
+
+joint_obs_model %>%
+  filter(is.na(DIC)) %>%
+  ggplot +
+  geom_point(aes(lon, lat)) +
+  scale_color_viridis_c() +
+  coord_quickmap(expand = 0) +
+  geom_raster(data = landmask,
+              aes(lon, lat), fill = "grey80")
+
+```
