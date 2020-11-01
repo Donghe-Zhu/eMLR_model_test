@@ -17,7 +17,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
 
-```{r library, message=FALSE, warning=FALSE}
+```{r library, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(patchwork)
 ```
@@ -72,7 +72,7 @@ theme_set(theme_bw())
 - UP Model results
 - [World Ocean Atlas 2018](https://www.nodc.noaa.gov/OC5/woa18/woa18data.html){target="_blank"}
 
-Here we use model result for 2007 (with Variable Forcing, increasing atm. pCO2). 
+Here we use model result for 2007 (with Variable Forcing, increasing atm. pCO2).
 
 Our variables of interest are:
 
@@ -91,6 +91,7 @@ We produced following plots for those variables for month of August:
 - Map of surface value (depth = 5m)
 - Section - Depth plot along path from North Altantic -> Southern Ocean -> North Pacific
 - Zonal mean section for each basin (Atlantic, Indian, Pacific)
+
 
 # Read csv file
 
@@ -113,7 +114,7 @@ nc_data_tibble_regrided_surface_Aug <- nc_data_tibble_regrided %>%
 
 # Global surface distribution
 
-```{r plot_surface_map_DIC}
+```{r map_global_DIC}
 
 map_global(nc_data_tibble_regrided_surface_Aug, "DIC")
 
@@ -122,74 +123,65 @@ map_global(nc_data_tibble_regrided_surface_Aug, "DIC")
 From the plot we can find surface DIC concentration is quite high in Southern Ocean, which may be caused by long residence time of water there. Besides, low SST also facilitates the dissolution of CO2.
 Moreover, equatorial region has lower surface DIC, probably due to the strong upwelling event happening there stop the absorption process.
 
-```{r plot_surface_map_ALK}
+```{r plot_surface_map_ALKinclude = FALSE}
 
 map_global(nc_data_tibble_regrided_surface_Aug, "ALK")
+# The ALK surface distribution has almost the same pattern as DIC, since ALK is most directly controled by DIC (Specifically, CO32- and HCO3-).
 
 ```
 
-The ALK surface distribution has almost the same pattern as DIC, since ALK is most directly controled by DIC (Specifically, CO32- and HCO3-).
-
-```{r plot_surface_map_O2}
+```{r plot_surface_map_O2, include = FALSE}
 
 map_global(nc_data_tibble_regrided_surface_Aug, "O2")
+# O2 is mostly solubility-dependent (T related). Higher concentration found in polar regions. Relatively low concentration in Southern Ocean compared with Arctic Ocean probably because the short residence time.
 
 ```
 
-O2 is mostly solubility-dependent (T related). Higher concentration found in polar regions. Relatively low concentration in Southern Ocean compared with Arctic Ocean probably because the short residence time.
-
-```{r plot_surface_map_AOU}
+```{r plot_surface_map_AOU, include = FALSE}
 
 map_global(nc_data_tibble_regrided_surface_Aug, "AOU")
+# Apparent Oxygen Utilization (AOU) is quite uniform in the whole oceans. There are some hot spots, e.g. equatorial Pacific and Antarctica margin, where intensive upwelling event brings quite old water from deep after respiration consumes lots of O2.
 
 ```
 
-Apparent Oxygen Utilization (AOU) is quite uniform in the whole oceans. There are some hot spots, e.g. equatorial Pacific and Antarctica margin, where intensive upwelling event brings quite old water from deep after respiration consumes lots of O2.
-
-```{r plot_surface_map_NO3}
+```{r plot_surface_map_NO3, include = FALSE}
 
 map_global(nc_data_tibble_regrided_surface_Aug, "NO3")
+# Nitrogen and phosphorus are essential macronutrients for oceanic plants. Both of them are quite rich in depth, because remineralization process happens as organic matter produced at surface are transported downward. Thus, high concentration are found in intensive upwelling regions, e.g. equatorial Pacific and Southern Ocean. Concentration is also controled by near continent and ocean current, as coastal polution discharge is also a main source for Nitrogen.
 
 ```
 
-Nitrogen and phosphorus are essential macronutrients for oceanic plants. Both of them are quite rich in depth, because remineralization process happens as organic matter produced at surface are transported downward. Thus, high concentration are found in intensive upwelling regions, e.g. equatorial Pacific and Southern Ocean. Concentration is also controled by near continent and ocean current, as coastal polution discharge is also a main source for Nitrogen.
-
-```{r plot_surface_map_PO4}
+```{r plot_surface_map_PO4, include = FALSE}
 
 map_global(nc_data_tibble_regrided_surface_Aug, "PO4")
+# Same pattern as NO3-.
 
 ```
 
-Same pattern as NO3-.
-
-```{r plot_surface_map_SALT}
+```{r plot_surface_map_SALT, include = FALSE}
 
 map_global(nc_data_tibble_regrided_surface_Aug, "SALT")
+# The surface salt concentration is quite uniform across the world oceans. The coastal regions, especially in north hemisphere, have relatively low surface salt concentration, due to the freshwater input from river or ice melting.
 
 ```
 
-The surface salt concentration is quite uniform across the world oceans. The coastal regions, especially in north hemisphere, have relatively low surface salt concentration, due to the freshwater input from river or ice melting.
-
-```{r plot_surface_map_TEMP}
+```{r plot_surface_map_TEMP, include = FALSE}
 
 map_global(nc_data_tibble_regrided_surface_Aug, "TEMP")
+# The SST has clear meridional gradient, which is closest related to the incoming solar energy. Besides, currents (warm or cold) or local circulation (upwelling regions) also modify the temperature distribution.
 
 ```
 
-The SST has clear meridional gradient, which is closest related to the incoming solar energy. Besides, currents (warm or cold) or local circulation (upwelling regions) also modify the temperature distribution.
-
-```{r plot_surface_map_SiO3}
+```{r plot_surface_map_SiO3, include = FALSE}
 
 map_global(nc_data_tibble_regrided_surface_Aug, "SiO3")
+# SiO3 is much rich in Southern Ocean and coastal region, which indicates active biology production.
 
 ```
-
-SiO3 is much rich in Southern Ocean and coastal region, which indicates active biology production.
-
 
 # Global section map
 
-```{r global_section_DIC}
+```{r section_global_DIC}
 
 section_global(nc_data_tibble_regrided, "DIC")
 
@@ -197,72 +189,60 @@ section_global(nc_data_tibble_regrided, "DIC")
 
 DIC concentration is directly linked with the age of water, with higher DIC found in older water, as the respiration-generated DIC accumulating along the way.
 
-```{r global_section_ALK}
+```{r global_section_ALK, include = FALSE}
 
 section_global(nc_data_tibble_regrided, "ALK")
+# Apart from deep Pacific, we found really high ALK signal in Atlantic Ocean subtropical region.
 
 ```
 
-Apart from deep Pacific, we found really high ALK signal in Atlantic Ocean subtropical region.
-
-```{r global_section_O2}
+```{r global_section_O2, include = FALSE}
 
 section_global(nc_data_tibble_regrided, "O2")
+# For ocean surface, we found high O2 in high latitude (low T, high solubility). There are two sttrong anoxic zone at around 500m depth of Atlantic and North Pacific Ocean.
 
 ```
 
-For ocean surface, we found high O2 in high latitude (low T, high solubility). There are two sttrong anoxic zone at around 500m depth of Atlantic and North Pacific Ocean.
-
-```{r global_section_AOU}
+```{r global_section_AOU, include = FALSE}
 
 section_global(nc_data_tibble_regrided, "AOU")
+# The AOU pattern is mostly opposite to the O2 pattern, with two hotspots at around 500m depth of Atlantic and North Pacific Ocean.
 
 ```
 
-The AOU pattern is mostly opposite to the O2 pattern, with two hotspots at around 500m depth of Atlantic and North Pacific Ocean.
-
-```{r global_section_NO3}
+```{r global_section_NO3, include = FALSE}
 
 section_global(nc_data_tibble_regrided, "NO3")
 
 ```
 
-
-
-```{r global_section_PO4}
+```{r global_section_PO4, include = FALSE}
 
 section_global(nc_data_tibble_regrided, "PO4")
 
 ```
 
-
-
-```{r global_section_SALT}
+```{r global_section_SALT, include = FALSE}
 
 section_global(nc_data_tibble_regrided, "SALT")
 
 ```
 
-
-
-```{r global_section_TEMP}
+```{r global_section_TEMP, include = FALSE}
 
 section_global(nc_data_tibble_regrided, "TEMP")
 
 ```
 
-
-
-```{r global_section_SiO3}
+```{r global_section_SiO3, include = FALSE}
 
 section_global(nc_data_tibble_regrided, "SiO3")
 
 ```
 
-
 # Zonal section map
 
-```{r zonal_section_DIC}
+```{r section_zonal_DIC}
 
 for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
     
@@ -275,7 +255,7 @@ for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
 
 ```
 
-```{r zonal_section_ALK}
+```{r zonal_section_ALK, include = FALSE}
 
 for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
     
@@ -288,7 +268,7 @@ for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
 
 ```
 
-```{r zonal_section_O2}
+```{r zonal_section_O2, include = FALSE}
 
 for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
     
@@ -301,7 +281,7 @@ for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
 
 ```
 
-```{r zonal_section_AOU}
+```{r zonal_section_AOU, include = FALSE}
 
 for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
     
@@ -314,7 +294,7 @@ for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
 
 ```
 
-```{r zonal_section_NO3}
+```{r zonal_section_NO3, include = FALSE}
 
 for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
     
@@ -327,7 +307,7 @@ for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
 
 ```
 
-```{r zonal_section_PO4}
+```{r zonal_section_PO4, include = FALSE}
 
 for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
     
@@ -340,7 +320,7 @@ for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
 
 ```
 
-```{r zonal_section_SALT}
+```{r zonal_section_SALT, include = FALSE}
 
 for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
     
@@ -353,7 +333,7 @@ for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
 
 ```
 
-```{r zonal_section_TEMP}
+```{r zonal_section_TEMP, include = FALSE}
 
 for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
     
@@ -366,7 +346,7 @@ for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
 
 ```
 
-```{r zonal_section_SiO3}
+```{r zonal_section_SiO3, include = FALSE}
 
 for (i_basin_AIP in unique(nc_data_tibble_regrided$basin_AIP)) {
     
