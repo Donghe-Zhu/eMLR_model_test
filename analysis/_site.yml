@@ -17,14 +17,10 @@ navbar:
       href: read_model_data_2007.html
     - text: Read GLODAPv2 data
       href: read_GLODAPv2_data.html
-  - text: Mapping
+  - text: Analysis
     menu:
     - text: Variable model DIC 2007
       href: variable_model_data_2007.html
-    - text: variable model vs GLODAPv2 2007
-      href: joint_obs_model_2007.html
-  - text: Analysis
-    menu:
     - text: Cant model 2007
       href: cant_model_2007.html
   right:

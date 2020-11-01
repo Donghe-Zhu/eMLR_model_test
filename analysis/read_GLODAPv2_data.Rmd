@@ -24,10 +24,10 @@ library(tidyverse)
 
 ```{r read_model_dile, include = FALSE}
 
-nc_data_tibble_regrided <-  read_csv(
+variable_data_tibble_annual_average <-  read_csv(
   here::here(
     "data",
-    "variable_DIC_2007.csv"
+    "variable_DIC_AA_2007.csv"
   )
 )
 
@@ -51,7 +51,7 @@ GLODAP <-
   )
 
 # set depth range
-depth_model <- unique(nc_data_tibble_regrided$depth)
+depth_model <- unique(variable_data_tibble_annual_average$depth)
 range_temp <- 1:(length(depth_model) - 1)
 for (i in 1:(length(depth_model) - 1))  {
   range_temp[i] <- (depth_model[i] + depth_model[i + 1]) / 2
@@ -70,6 +70,6 @@ GLODAP %>%
   write_csv(here::here("data",
                        "GLODAP_regrid_depth.csv"))
 
-rm(GLODAP, nc_data_tibble_regrided)
+rm(GLODAP, variable_data_tibble_annual_average, depth_model, range, range_temp, i)
 
 ```

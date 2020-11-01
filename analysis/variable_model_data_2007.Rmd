@@ -85,22 +85,17 @@ We produced following plots for variable forcing model DIC in 2007 (annual avera
 ```{r read_file_and_calculate_annual_average_DIC}
 
 # read variable forcing model DIC in 2007
-variable_data_tibble <-  read_csv(
+variable_data_tibble_annual_average <-  read_csv(
   here::here(
     "data",
-    "variable_DIC_2007.csv"
+    "variable_DIC_AA_2007.csv"
   )
 )
 
-# calculate annual average DIC in 2007
-variable_data_tibble_annual_average <- variable_data_tibble %>%
-  group_by(lat, lon, depth, basin_AIP) %>%
-  summarise(DIC_variable = mean(DIC_variable)) %>%
-  rename(DIC = DIC_variable)
-
 # filter surface annual average DIC in 2007
 variable_data_tibble_annual_average_surface <- variable_data_tibble_annual_average %>%
-  filter(depth == 5)
+  filter(depth == 5) %>%
+  rename(DIC = DIC_variable)
 
 ```
 

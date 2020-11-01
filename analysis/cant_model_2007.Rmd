@@ -72,31 +72,21 @@ theme_set(theme_bw())
 
 ```{r read_csv_files_and_calculate_annual_average_DIC}
 
-# read variable forcing model DIC in 2007
-variable_data_tibble <-  read_csv(
+# read annual average variable forcing model DIC in 2007
+variable_data_tibble_annual_average <-  read_csv(
   here::here(
     "data",
-    "variable_DIC_2007.csv"
+    "variable_DIC_AA_2007.csv"
   )
 )
 
-# calculate annual average variable DIC in 2007
-variable_data_tibble_annual_average <- variable_data_tibble %>%
-  group_by(lon, lat, depth, basin_AIP) %>%
-  summarise(DIC_variable = mean(DIC_variable))
-
-# read normal forcing model DIC in 2007
-normal_data_tibble <-  read_csv(
+# read annual average normal forcing model DIC in 2007
+normal_data_tibble_annual_average <-  read_csv(
   here::here(
     "data",
-    "normal_DIC_2007.csv"
+    "normal_DIC_AA_2007.csv"
   )
 )
-
-# calculate annual average normal DIC in 2007
-normal_data_tibble_annual_average <- normal_data_tibble %>%
-  group_by(lon, lat, depth, basin_AIP) %>%
-  summarise(DIC_normal = mean(DIC_normal))
 
 ```
 
