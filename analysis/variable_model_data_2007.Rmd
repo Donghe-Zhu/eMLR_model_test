@@ -93,9 +93,11 @@ variable_data_tibble_annual_average <-  read_csv(
 )
 
 # filter surface annual average DIC in 2007
-variable_data_tibble_annual_average_surface <- variable_data_tibble_annual_average %>%
-  filter(depth == 5) %>%
+variable_data_tibble_annual_average <- variable_data_tibble_annual_average %>%
   rename(DIC = DIC_variable)
+
+variable_data_tibble_annual_average_surface <- variable_data_tibble_annual_average %>%
+  filter(depth == 5)
 
 ```
 
