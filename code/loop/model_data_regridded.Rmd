@@ -302,7 +302,7 @@ ggplot() +
               aes(lon, lat), fill = "grey80") +
   labs(title = "Observation and Model DIC Distribution", subtitle = "Model DIC Depth: 5m | Annual Average", x = "Longitude", y = "Latitude", fill = "DIC [mmol/m3]") 
 
-rm(GLODAP, GLODAP_month, joint_obs_model,  variable_data_tibble, variable_data_tibble_annual_average_surface, variable_data_tibble_month, model_subset, model_subset_interpo)
+rm(GLODAP, GLODAP_month, joint_obs_model, variable_data_tibble, variable_data_tibble_annual_average_surface, variable_data_tibble_month, model_subset, model_subset_interpo)
 
 ```
 
