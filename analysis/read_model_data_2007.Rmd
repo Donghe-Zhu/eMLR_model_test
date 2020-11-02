@@ -170,7 +170,7 @@ rm(normal_data, normal_data_tibble, normal_data_tibble_annual_average)
 GLODAP <- read_csv(
   here::here(
     "data",
-    "GLODAP_regrid_depth.csv"
+    "GLODAP_regrid_2007.csv"
   )
 )
 
@@ -190,15 +190,12 @@ variable_data_tibble_month <- variable_data_tibble %>%
   mutate(time = month(time)) %>%
   rename(month = time, DIC = DIC_variable)
 
-# convert GLODAP time to month
-GLODAP_month <- GLODAP %>%
-  mutate(date = month(date)) %>%
-  rename(month = date) %>%
-  select(month, lon, lat, depth, tco2) %>%
+# select unique GLODAP tco2 data
+GLODAP <- GLODAP %>%
   unique()
 
 # subset model data at the observation sites
-model_subset <- left_join(GLODAP_month, variable_data_tibble_month) %>%
+model_subset <- left_join(GLODAP, variable_data_tibble_month) %>%
   select(lon, lat, month, depth, DIC) %>%
   unique()
 
@@ -222,7 +219,7 @@ model_subset <- model_subset %>%
 model_subset_interpo <- full_join(model_subset_interpo, model_subset)
   
 # combine model data with corresponding observational data
-joint_obs_model <- left_join(model_subset_interpo, GLODAP_month) %>%
+joint_obs_model <- left_join(model_subset_interpo, GLODAP) %>%
   select(lon, lat, month, depth, tco2, DIC)
 
 ```
@@ -237,12 +234,12 @@ ggplot() +
              aes(lon, lat, fill = DIC)) +
   scale_fill_viridis_c() +
   coord_quickmap(expand = 0) +
-  geom_point(data = GLODAP_month,
+  geom_point(data = joint_obs_model,
              aes(lon, lat)) +
   geom_raster(data = landmask,
               aes(lon, lat), fill = "grey80") +
   labs(title = "Observation and Model DIC Distribution", subtitle = "Model DIC Depth: 5m | Annual Average", x = "Longitude", y = "Latitude", fill = "DIC [mmol/m3]") 
 
-rm(GLODAP, GLODAP_month, joint_obs_model,  variable_data_tibble,variable_data_tibble_annual_average,  variable_data_tibble_annual_average_surface, variable_data_tibble_month, model_subset, model_subset_interpo)
+rm(GLODAP, joint_obs_model, variable_data_tibble,variable_data_tibble_annual_average,  variable_data_tibble_annual_average_surface, variable_data_tibble_month, model_subset, model_subset_interpo)
 
 ```
